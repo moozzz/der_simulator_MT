@@ -1,7 +1,6 @@
 # A discrete elastic model of microtubule plus-end dynamics
 
 ### Content:
-============
 
 * `der_simulator_MT.py` -- the main script for launching a MT end simulation
 
