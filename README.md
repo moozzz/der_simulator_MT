@@ -12,6 +12,16 @@
 
 * `convert_der2pdb_MT.py` -- the script for converting python `.npy` trajectories into PDB files
 
+### Dependencies:
+
+* `python 3.9` or newer
+
+* `numpy 1.26` or newer
+
+* `numba 0.6` or newer
+
+* `npy-append-array 0.9` or newer
+
 ### How to run a single simulation:
 
 * do `./der_simulator_MT.py -h` to see the available options
