@@ -2,15 +2,15 @@
 
 ### Content:
 
-- `der_simulator_MT.py` -- main script for launching a MT end simulation
+- `der_simulator_MT.py` -- the main script for launching a MT end simulation
 
-- `functions_pf.py` -- supplementary functions defining PF kinematics
+- `functions_pf.py` -- supplementary functions defining the PF kinematics
 
-- `functions_forces.py` -- supplementary functions defining forces
+- `functions_forces.py` -- supplementary functions defining the forces on nodes and edge rotation angles
 
-- `functions_bd_mt.py` -- supplementary functions defining BD engine
+- `functions_bd_mt.py` -- supplementary functions defining the BD engine
 
-- `convert_der2pdb_MT.py` -- script for converting python trajectories into PDB files
+- `convert_der2pdb_MT.py` -- the script for converting python `.npy` trajectories into PDB files
 
 ### How to run a single simulation:
 
@@ -28,14 +28,13 @@
   command above without `-r` to run a completely new simulation.
 
 - do `./convert_der2pdb_MT.py traj_vert.npy traj_dir.npy` to
-  convert python trajectories into PDB files
+  convert python `.npy` trajectories into PDB files
 
-- the *index* option is needed label simulations when running
+- the *index* option is needed to label simulations when running
   multiple copies in parallel
 
 - the *number of restarts* option is needed to avoid data loss
-  when running simulations on clusters with limited job time
+  when running simulations on clusters with a limited job time
 
 - the *alpha* option is needed to control lateral interaction
   strength relative to its MD value
-
