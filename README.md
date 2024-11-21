@@ -22,29 +22,36 @@
 
 * `npy-append-array 0.9` or newer
 
-### How to run a single simulation:
+### Parameters:
 
-* do `./der_simulator_MT.py -h` to see the available options
+* Usage: `./der_simulator_MT.py chain nuc_state n_sim nt nt_skip Nt alpha restart_flag`
 
-* do `./der_simulator_MT.py 0 gdp 1 20000 2500 12 0.0` to run
-  1 simulation with index 0 of the GDP-MT end of length 12
-  monomers (6 dimers) and Ulat*0.0 lateral interactions for
-  20000 steps (each step is 10 ps) sampled every 2500 steps
-  (25 ns)
+* `chain` -- simulation index (useful for labeling replicas when running multiple copies in parallel)
 
-* do `./der_simulator_MT.py 0 gdp 1 20000 2500 12 0.0 -r` to
-  continue the above simulation from the last frame.
-  Alternatively, delete the simulation directory and do the
-  command above without `-r` to run a completely new simulation.
+* `nuc_state` -- nucleotide state (`gtp` or `gdp`)
 
-* do `./convert_der2pdb_MT.py traj_vert.npy traj_dir.npy` to
-  convert python `.npy` trajectories into PDB files
+* `n_sim` -- number of restarts in a chain of simulations (useful for saving checkpoints when running
+             running simulations on a cluster with a limited job time)
 
-* the *index* option is needed to label simulations when running
-  multiple copies in parallel
+* `nt` -- number of steps
 
-* the *number of restarts* option is needed to avoid data loss
-  when running simulations on clusters with a limited job time
+* `nt_skip` -- only save every `nt_skip`-th frame
 
-* the *alpha* option is needed to control lateral interaction
-  strength relative to its MD value
+* `Nt` -- number of tubulin monomers in a PF (`Nt/2` dimers)
+
+* `alpha` -- scaling factor for the lateral interaction energy `Ulat`
+
+* `restart_flag` -- flag for restarting a simulation from the last frame (empty or `-r`)
+
+### How to run and/or continue a single simulation:
+
+* do `./der_simulator_MT.py 0 gdp 1 20000 2500 12 0.0` to run 1 simulation with index 0 of the GDP-MT
+  end of length 12 monomers (6 dimers) and Ulat*0.0 lateral interactions for 20000 steps (each step is
+  10 ps) sampled every 2500 steps (25 ns)
+
+* do `./der_simulator_MT.py 0 gdp 1 20000 2500 12 0.0 -r` to continue the above simulation from the
+  last frame. Alternatively, delete the simulation directory and do the command above without `-r` to
+  run a completely new simulation.
+
+* do `./convert_der2pdb_MT.py traj_vert.npy traj_dir.npy` to convert python `.npy` trajectories into
+  PDB files
