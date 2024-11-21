@@ -17,7 +17,7 @@
 
 ### How to run a single simulation:
 
-- do './der_simulator_MT.py -h' to see the available options
+- do `./der_simulator_MT.py -h` to see the available options
 
 - do './der_simulator_MT.py 0 gdp 1 20000 2500 12 0.0' to run
   1 simulation with index 0 of the GDP-MT end of length 12
