@@ -53,8 +53,8 @@
 
 * set `restart_flag = '-r'` and `n_sim = 10` in `params_bd_run.py` to continue the above simulation from
   the last frame in a chain of 10 cycles. The trajectory of each cycle is appended to the previous one.
-  Alternatively, delete the simulation directory and do the command above without `-r` to run a
-  completely new simulation.
+  Alternatively, delete the simulation directory and set `restart_flag = ''` to run a completely new
+  simulation.
 
 ### How to analyze the trajectory:
 
