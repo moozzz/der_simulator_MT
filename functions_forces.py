@@ -214,8 +214,8 @@ def Flat(Nt, M1, M2, v, tang, npf, epsilon_lat_homo, epsilon_lat_seam, a_lat_hom
     R0_COM_COM = 5.340502 # nm, eq com-com distance b/w neighbor monomers
     R0_BS_homo = 1.34050242253106 # nm, eq distance b/w homotypic binding sites
     R0_BS_seam = 1.85888211       # nm, eq distance b/w seam binding sites
-    R1 =  np.array([ 0.44504187, -1.94985582, 0.0    ]) # eq coordinate of left binding site
-    R2 = -np.array([ 0.44504187, -1.94985582, 0.8845 ]) # eq coordinate of shifted right binding site
+    R1 =  np.array([ 0.44504187, -1.94985582, 0.0     ]) # eq coordinate of left binding site
+    R2 = -np.array([ 0.44504187, -1.94985582, -0.8845 ]) # eq coordinate of shifted right binding site
 
     for p in range(npf):
         for i in range(1, Nt+1):
