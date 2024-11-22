@@ -89,12 +89,12 @@ def run_bd_mt(nt, nt_skip, Nt, npf, flag_restart, v_restart, theta_restart, mref
     ################################
 
     # define necessary arrays
-    ed = np.zeros((npf, Nt+1, 3))
-    tang = np.zeros((npf, Nt+1, 3))
-    ut, vt = np.zeros((npf, Nt+1, 3)), np.zeros((npf, Nt+1, 3))
+    ed = np.zeros((npf, Nt, 3))
+    tang = np.zeros((npf, Nt, 3))
+    ut, vt = np.zeros((npf, Nt, 3)), np.zeros((npf, Nt, 3))
     Mtwist = np.zeros((npf, Nt+1))
     lv = np.zeros((npf, Nt+1))
-    M1, M2 = np.zeros((npf, Nt+1, 3)), np.zeros((npf, Nt+1, 3))
+    M1, M2 = np.zeros((npf, Nt, 3)), np.zeros((npf, Nt, 3))
     kb = np.zeros((npf, Nt+1, 3))
     theta = np.zeros((npf, Nt))
     u0 = np.zeros((npf, 3))
@@ -149,12 +149,12 @@ def run_bd_mt(nt, nt_skip, Nt, npf, flag_restart, v_restart, theta_restart, mref
     traj_v = np.zeros((nn, npf, Nt+1, 3))
     traj_dir = np.zeros((nn, npf, Nt, 3))
     traj_theta = np.zeros((nn, npf, Nt))
-    traj_U = np.zeros((nn, npf, Nt+1, 3))
-    traj_V = np.zeros((nn, npf, Nt+1, 3))
+    traj_U = np.zeros((nn, npf, Nt, 3))
+    traj_V = np.zeros((nn, npf, Nt, 3))
     traj_mref = np.zeros((nn, npf, Nt))
-    ut_1 = np.zeros((npf, Nt+1, 3))
-    vt_1 = np.zeros((npf, Nt+1, 3))
-    tang_1 = np.zeros((npf, Nt+1, 3))
+    ut_1 = np.zeros((npf, Nt, 3))
+    vt_1 = np.zeros((npf, Nt, 3))
+    tang_1 = np.zeros((npf, Nt, 3))
 
     ################################
     # Main time cycle
@@ -215,7 +215,7 @@ def run_bd_mt(nt, nt_skip, Nt, npf, flag_restart, v_restart, theta_restart, mref
                                                      np.random.normal()])
 
             # update angles
-            # first angle is static
+            # first edge rotation angle is static
             for i in range(1, Nt):
                 theta[p, i] = theta[p, i] +\
                               dth2/kbt*(ft_theta[i] + fc2_theta[i]) +\

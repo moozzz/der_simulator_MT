@@ -173,7 +173,11 @@ for i in range(n_sim):
                                                                            restart_flag, v_restart, theta_restart, mref_restart, ut_restart, vt_restart,
                                                                            params_diff, params_means, params_stiff)
     t_end = timer()
-    print('Total run time of cycle %d is %f sec\n' % (i, t_end - t_start))
+    print('Total run time of cycle %d is %f sec' % (i, t_end - t_start))
+    if i == 0:
+        print('Performance will be estimated in the next cycle')
+    else:
+        print('Performance in cycle %d is %.1f µs/day' % (i, (nt*10.0/1e6) / ((t_end - t_start)/60.0/60.0/24.0) ))
 
     with NpyAppendArray('%s/traj_vert.npy'  % folder_save) as file_vert:
         file_vert.append(traj_vert)
