@@ -4,6 +4,8 @@
 
 * `der_simulator_MT.py` -- the main script for launching a MT end simulation
 
+* `params_bd_run.py` -- parameters for the BD run
+
 * `functions_pf.py` -- supplementary functions defining the PF kinematics
 
 * `functions_forces.py` -- supplementary functions defining the forces on nodes and edge rotation angles
@@ -24,8 +26,6 @@
 
 ### Parameters:
 
-* Usage: `./der_simulator_MT.py chain nuc_state n_sim nt nt_skip Nt alpha restart_flag`
-
 * `chain` -- simulation index (useful for labeling replicas when running multiple copies in parallel)
 
 * `nuc_state` -- nucleotide state (`gtp` or `gdp`)
@@ -45,14 +45,14 @@
 
 ### How to run a single simulation:
 
-* do `./der_simulator_MT.py 0 gdp 1 20000 2500 12 0.0` to run 1 simulation with index 0 of the GDP-MT
-  end of length 12 monomers (6 dimers) and `Ulat`*0.0 lateral interactions for 20000 steps (200 ns;
-  each step is 10 ps) sampled every 2500 steps (25 ns)
+* do `./der_simulator_MT.py` to run 1 simulation with index 0 of the GDP-MT end of length 12 monomers
+  (6 dimers) and `Ulat`*0.0 lateral interactions for 20000 steps (200 ns; each step is 10 ps) sampled
+  every 2500 steps (25 ns)
 
 ### How to continue a single simulation:
 
-* do `./der_simulator_MT.py 0 gdp 10 20000 2500 12 0.0 -r` to continue the above simulation from the
-  last frame in a chain of 10 cycles. The trajectory of each cycle is appended to the previous one.
+* set `restart_flag = '-r'` and `n_sim = 10` in `params_bd_run.py` to continue the above simulation from
+  the last frame in a chain of 10 cycles. The trajectory of each cycle is appended to the previous one.
   Alternatively, delete the simulation directory and do the command above without `-r` to run a
   completely new simulation.
 

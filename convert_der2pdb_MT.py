@@ -11,15 +11,15 @@ if traj_vert == "-h":
 traj_dir = sys.argv[2]
 
 R = np.load(traj_vert)
+RD = np.load(traj_dir)
+
 N_frames = int(R.shape[0])
 N_PF = int(R.shape[1])
-N = int(R.shape[2])
+Nt_array = np.zeros(N_PF, dtype=np.int8)
+for p in range(N_PF):
+    Nt_array[p] = int(np.count_nonzero(R[0, p, :, 0]) - 1)
 
-RD = np.load(traj_dir)
-ND = int(RD.shape[2])
-
-print(R.shape)
-print(RD.shape)
+print(Nt_array)
 
 # output pdb file
 fh = open('PDB_%s_%s.pdb' % (traj_vert[:-4], traj_dir[:-4]), 'w')
@@ -29,7 +29,7 @@ for i in range(N_frames):
     fh.write('MODEL   {:6d}\n'.format(i+1))
 
     for p in range(N_PF):
-        for j in range(N-1):
+        for j in range(Nt_array[p]):
             if j % 2 == 0:
                 fh.write("{:6s}{:5d} {:^4s}{:1s}{:3s} {:1s}{:4d}{:1s}   {:8.3f}{:8.3f}{:8.3f}{:6.2f}{:6.2f}          {:>2s}{:2s}\n".format('ATOM', j+1, 'CA',
                                                                                                                                            ' ', 'MET', 'A', 1, ' ',
@@ -47,7 +47,7 @@ for i in range(N_frames):
 
             atom_count += 1
 
-        for j in range(ND):
+        for j in range(Nt_array[p]):
             fh.write("{:6s}{:5d} {:^4s}{:1s}{:3s} {:1s}{:4d}{:1s}   {:8.3f}{:8.3f}{:8.3f}{:6.2f}{:6.2f}          {:>2s}{:2s}\n".format('ATOM', atom_count+j, 'N',
                                                                                                                                        ' ', 'MET', 'D', 1, ' ',
                                                                                                                                        RD[i, p, j, 0] + 250.0,

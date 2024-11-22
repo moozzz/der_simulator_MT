@@ -30,9 +30,9 @@ from functions_pf import computedEdK2
 ###############################################
 
 @njit(fastmath=True)
-def Fstretch_diss(Nt, ed, tan, ht, Es, epsilon, a):
-    Fstr = np.zeros((Nt+1, 3))
-    Fs = np.zeros((Nt+1, 3))
+def Fstretch_diss(Nt, Nt_max, ed, tan, ht, Es, epsilon, a):
+    Fstr = np.zeros((Nt_max+1, 3))
+    Fs = np.zeros((Nt_max+1, 3))
 
     for i in range(1, Nt):
         if i % 2 != 0:
@@ -50,9 +50,9 @@ def Fstretch_diss(Nt, ed, tan, ht, Es, epsilon, a):
     return Fs
 
 @njit(fastmath=True)
-def Fstretch(Nt, ed, tan, ht, Es):
-    Fstr = np.zeros((Nt+1, 3))
-    Fs = np.zeros((Nt+1, 3))
+def Fstretch(Nt, Nt_max, ed, tan, ht, Es):
+    Fstr = np.zeros((Nt_max+1, 3))
+    Fs = np.zeros((Nt_max+1, 3))
 
     for i in range(1, Nt):
         # both intra and inter dimer
@@ -66,17 +66,17 @@ def Fstretch(Nt, ed, tan, ht, Es):
     return Fs
 
 @njit(fastmath=True)
-def Fbend(Nt, M1, M2, kb, tan, ed, lv, K1eq, K2eq, Ek1, Ek2):
-    dK1de = computedK1de(Nt, M2, kb, tan, ed, True)
-    dK2de = computedK2de(Nt, M1, kb, tan, ed, True)
+def Fbend(Nt, Nt_max, M1, M2, kb, tan, ed, lv, K1eq, K2eq, Ek1, Ek2):
+    dK1de = computedK1de(Nt, Nt_max, M2, kb, tan, ed, True)
+    dK2de = computedK2de(Nt, Nt_max, M1, kb, tan, ed, True)
 
-    dK1de_1 = computedK1de(Nt, M2, kb, tan, ed, False)
-    dK2de_1 = computedK2de(Nt, M1, kb, tan, ed, False)
+    dK1de_1 = computedK1de(Nt, Nt_max, M2, kb, tan, ed, False)
+    dK2de_1 = computedK2de(Nt, Nt_max, M1, kb, tan, ed, False)
 
-    K1 = computeK1(Nt, M2, kb)
-    K2 = computeK2(Nt, M1, kb)
+    K1 = computeK1(Nt, Nt_max, M2, kb)
+    K2 = computeK2(Nt, Nt_max, M1, kb)
 
-    Fb = np.zeros((Nt+1, 3))
+    Fb = np.zeros((Nt_max+1, 3))
 
     for i in range(1, Nt):
         dEde = Ek1[i]/lv[i] * ( (K1[i] - K1eq[i]) * dK1de[i] + (K1[i+1] - K1eq[i+1]) * dK1de_1[i+1] ) +\
@@ -93,9 +93,9 @@ def Fbend(Nt, M1, M2, kb, tan, ed, lv, K1eq, K2eq, Ek1, Ek2):
     return Fb
 
 @njit(fastmath=True)
-def Ftwist(Nt, ed, Mtwist, kb, lv, Mtwist_eq, Et):
-    Ft = np.zeros((Nt+1, 3))
-    dEdm = computedEdm(Nt, Mtwist, lv, Mtwist_eq)
+def Ftwist(Nt, Nt_max, ed, Mtwist, kb, lv, Mtwist_eq, Et):
+    Ft = np.zeros((Nt_max+1, 3))
+    dEdm = computedEdm(Nt, Nt_max, Mtwist, lv, Mtwist_eq)
 
     for i in range(1, Nt):
         Ft[i] = Et[i]*dEdm[i] * ( 1.0/(2.0*norm(ed[i])) - 1.0/(2.0*norm(ed[i-1])) ) * kb[i] -\
@@ -107,9 +107,9 @@ def Ftwist(Nt, ed, Mtwist, kb, lv, Mtwist_eq, Et):
     return Ft
 
 @njit(fastmath=True)
-def Ftwist_theta(Nt, Mtwist, lv, Mtwist_eq, Et):
-    Mt = np.zeros(Nt+1)
-    dEdm = computedEdm(Nt, Mtwist, lv, Mtwist_eq)
+def Ftwist_theta(Nt, Nt_max, Mtwist, lv, Mtwist_eq, Et):
+    Mt = np.zeros(Nt_max+1)
+    dEdm = computedEdm(Nt, Nt_max, Mtwist, lv, Mtwist_eq)
 
     for i in range(1, Nt-1):
         Mt[i] = Et[i+1]*dEdm[i+1] - Et[i]*dEdm[i]
@@ -119,13 +119,13 @@ def Ftwist_theta(Nt, Mtwist, lv, Mtwist_eq, Et):
     return Mt
 
 @njit(fastmath=True)
-def FcoupleM_k2(Nt, Mtwist, kb, lv, tan, ed, M1, Mtwist_eq, K2eq, Etb2):
-    dEdK2 = computedEdK2(Nt, M1, lv, kb, K2eq)
-    dK2de = computedK2de(Nt, M1, kb, tan, ed, True)
-    dK2de_1 = computedK2de(Nt, M1, kb, tan, ed, False)
-    dEdm = computedEdm(Nt, Mtwist, lv, Mtwist_eq)
+def FcoupleM_k2(Nt, Nt_max, Mtwist, kb, lv, tan, ed, M1, Mtwist_eq, K2eq, Etb2):
+    dEdK2 = computedEdK2(Nt, Nt_max, M1, lv, kb, K2eq)
+    dK2de = computedK2de(Nt, Nt_max, M1, kb, tan, ed, True)
+    dK2de_1 = computedK2de(Nt, Nt_max, M1, kb, tan, ed, False)
+    dEdm = computedEdm(Nt, Nt_max, Mtwist, lv, Mtwist_eq)
 
-    Ftb = np.zeros((Nt+1, 3))
+    Ftb = np.zeros((Nt_max+1, 3))
 
     for i in range(1, Nt):
         dEde = Etb2[i] * dEdm[i] * dK2de[i] +\
@@ -144,9 +144,9 @@ def FcoupleM_k2(Nt, Mtwist, kb, lv, tan, ed, M1, Mtwist_eq, K2eq, Etb2):
     return Ftb
 
 @njit(fastmath=True)
-def Fcouple_theta2(Nt, M1, lv, kb, K2eq, Etb2):
-    dEdK2 = computedEdK2(Nt, M1, lv, kb, K2eq)
-    FtbTheta = np.zeros(Nt+1)
+def Fcouple_theta2(Nt, Nt_max, M1, lv, kb, K2eq, Etb2):
+    dEdK2 = computedEdK2(Nt, Nt_max, M1, lv, kb, K2eq)
+    FtbTheta = np.zeros(Nt_max+1)
 
     for i in range(1, Nt-1):
         FtbTheta[i] = Etb2[i+1]*dEdK2[i+1] - Etb2[i]*dEdK2[i]
@@ -202,14 +202,15 @@ def attr_flat(par_epsilon_lat, R, R_unit, a_lat, R0_BS):
     return afl
 
 @njit(fastmath=True)
-def Flat(Nt, M1, M2, v, tang, npf, epsilon_lat_homo, epsilon_lat_seam, a_lat_homo, a_lat_seam, alpha):
+def Flat(Nt_array, M1, M2, v, tang, npf, epsilon_lat_homo, epsilon_lat_seam, a_lat_homo, a_lat_seam, alpha):
     # joint repulsive + attractive lateral force
     # alpha - scaling factor for lateral interactions
     # epsilon_lat - full lateral energy per dimer (3 nodes)
     # R0_BS_homo - eq distance b/w binding sites for homotypic contacts
     # R0_BS_seam - eq distance b/w binding sites for seam contact
 
-    Fl = np.zeros((npf, Nt+1, 3))
+    Nt_max = int(np.max(Nt_array))
+    Fl = np.zeros((npf, Nt_max+1, 3))
 
     R0_COM_COM = 5.340502 # nm, eq com-com distance b/w neighbor monomers
     R0_BS_homo = 1.34050242253106 # nm, eq distance b/w homotypic binding sites
@@ -218,7 +219,7 @@ def Flat(Nt, M1, M2, v, tang, npf, epsilon_lat_homo, epsilon_lat_seam, a_lat_hom
     R2 = -np.array([ 0.44504187, -1.94985582, -0.8845 ]) # eq coordinate of shifted right binding site
 
     for p in range(npf):
-        for i in range(1, Nt+1):
+        for i in range(1, Nt_array[p]+1):
             if p == npf-1:
                 # seam
                 rr1 = get_coord(R1, M1[p, i-1], M2[p, i-1], tang[p, i-1])

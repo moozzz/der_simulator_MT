@@ -18,24 +18,10 @@ from functions_bd_mt import run_bd_mt
 
 
 ###############################################
-# BD RUN ARGUMENTS
+# BD RUN PARAMETERS
 ###############################################
 
-chain = sys.argv[1]
-if chain == "-h":
-    print('\n# Usage: ./der_simulator_MT.py chain nuc_state n_sim nt nt_skip Nt alpha restart_flag\n')
-    sys.exit()
-chain = int(sys.argv[1])       # simulation index
-nuc_state = sys.argv[2]        # nucleotide state (gtp or gdp)
-n_sim =int(sys.argv[3])        # number of restarts in a chain of simulations
-nt = int(sys.argv[4])          # number of steps in a single simulation
-nt_skip = int(sys.argv[5])     # save trajectory every nt_skip steps
-Nt = int(sys.argv[6])          # number of monomers in a PF
-alpha = float(sys.argv[7])     # scaling factor for lateral energies
-if len(sys.argv) == 9:
-    restart_flag = sys.argv[8] # restart flag
-else:
-    restart_flag = ''
+from params_bd_run import *
 
 
 
@@ -43,7 +29,10 @@ else:
 # SET UP PARAMETER SPACE
 ###############################################
 
-npf = 14
+# number of PFs and max PF length
+Nt_array = np.array(Nt_array)
+Nt_max = int(np.max(Nt_array))
+npf = len(Nt_array)
 
 # implicitly setting dt = 10.0 ps
 params_diff = np.array([
@@ -131,7 +120,7 @@ else:
 # RUN BD AND WRITE FILES
 ###############################################
 
-folder_save = 'sim_mt_%s_%d_%.2f_%s'  % (nuc_state, Nt, alpha, chain)
+folder_save = 'sim_mt_%s_%d_%.8f_%d'  % (nuc_state, Nt_max, alpha, chain)
 
 for i in range(n_sim):
     if restart_flag == '' and not os.path.exists('%s/traj_vert.npy'  % folder_save) and \
@@ -142,11 +131,11 @@ for i in range(n_sim):
                               not os.path.exists('%s/traj_mref.npy'  % folder_save):
         print("\nStarting a new BD simulation...")
 
-        v_restart     = np.zeros((npf, Nt+1, 3))
-        theta_restart = np.zeros((npf, Nt))
-        ut_restart    = np.zeros((npf, Nt+1, 3))
-        vt_restart    = np.zeros((npf, Nt+1, 3))
-        mref_restart  = np.zeros((npf, Nt))
+        v_restart     = np.zeros((npf, Nt_max+1, 3))
+        theta_restart = np.zeros((npf, Nt_max))
+        ut_restart    = np.zeros((npf, Nt_max+1, 3))
+        vt_restart    = np.zeros((npf, Nt_max+1, 3))
+        mref_restart  = np.zeros((npf, Nt_max))
 
         # save files in a separate folder
         os.system('mkdir %s' % folder_save)
@@ -169,7 +158,7 @@ for i in range(n_sim):
         sys.exit()
 
     t_start = timer()
-    traj_vert, traj_dir, traj_theta, traj_U, traj_V, traj_mref = run_bd_mt(nt, nt_skip, Nt, npf,
+    traj_vert, traj_dir, traj_theta, traj_U, traj_V, traj_mref = run_bd_mt(nt, nt_skip, Nt_array, npf,
                                                                            restart_flag, v_restart, theta_restart, mref_restart, ut_restart, vt_restart,
                                                                            params_diff, params_means, params_stiff)
     t_end = timer()
