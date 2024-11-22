@@ -61,5 +61,5 @@
 * do `./convert_der2pdb_MT.py traj_vert.npy traj_dir.npy` to convert python `.npy` trajectories into
   PDB files
 
-* use your favorite analysis tools such as `gromacs`, `MDAnalysis`, etc.
+* use your favorite analysis tools such as `gromacs`, `MDAnalysis`, etc to analyze the PDB trajectories.
 

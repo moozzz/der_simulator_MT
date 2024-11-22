@@ -188,3 +188,6 @@ for i in range(n_sim):
     with NpyAppendArray('%s/traj_mref.npy'  % folder_save) as file_mref:
         file_mref.append(traj_mref)
 
+    if restart_flag == '':
+        restart_flag = '-r'
+
