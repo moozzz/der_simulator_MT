@@ -14,13 +14,13 @@
 
 ### Dependencies:
 
-* `python 3.9` or newer
+* `python>=3.9`
 
-* `numpy 1.26` or newer
+* `numpy>=1.26`
 
-* `numba 0.6` or newer
+* `numba>=0.6`
 
-* `npy-append-array 0.9` or newer
+* `npy-append-array>=0.9`
 
 ### Parameters:
 
