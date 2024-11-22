@@ -43,15 +43,23 @@
 
 * `restart_flag` -- flag for restarting a simulation from the last frame (empty or `-r`)
 
-### How to run and/or continue a single simulation:
+### How to run a single simulation:
 
 * do `./der_simulator_MT.py 0 gdp 1 20000 2500 12 0.0` to run 1 simulation with index 0 of the GDP-MT
   end of length 12 monomers (6 dimers) and `Ulat`*0.0 lateral interactions for 20000 steps (200 ns;
   each step is 10 ps) sampled every 2500 steps (25 ns)
 
-* do `./der_simulator_MT.py 0 gdp 1 20000 2500 12 0.0 -r` to continue the above simulation from the
-  last frame. Alternatively, delete the simulation directory and do the command above without `-r` to
-  run a completely new simulation.
+### How to continue a single simulation:
+
+* do `./der_simulator_MT.py 0 gdp 10 20000 2500 12 0.0 -r` to continue the above simulation from the
+  last frame in a chain of 10 cycles. The trajectory of each cycle is appended to the previous one.
+  Alternatively, delete the simulation directory and do the command above without `-r` to run a
+  completely new simulation.
+
+### How to analyze the trajectory:
 
 * do `./convert_der2pdb_MT.py traj_vert.npy traj_dir.npy` to convert python `.npy` trajectories into
   PDB files
+
+* use your favorite analysis tools such as `gromacs`, `MDAnalysis`, etc.
+
