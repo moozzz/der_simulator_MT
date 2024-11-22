@@ -1,4 +1,3 @@
-
 ###############################################
 # IMPORT MODULES
 ###############################################
@@ -153,7 +152,8 @@ def run_bd_mt(nt, nt_skip, Nt, npf, flag_restart, v_restart, theta_restart, mref
     traj_U = np.zeros((nn, npf, Nt+1, 3))
     traj_V = np.zeros((nn, npf, Nt+1, 3))
     traj_mref = np.zeros((nn, npf, Nt))
-    ut_1, vt_1 = np.zeros((npf, Nt+1, 3)), np.zeros((npf, Nt+1, 3))
+    ut_1 = np.zeros((npf, Nt+1, 3))
+    vt_1 = np.zeros((npf, Nt+1, 3))
     tang_1 = np.zeros((npf, Nt+1, 3))
 
     ################################

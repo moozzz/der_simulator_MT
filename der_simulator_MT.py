@@ -25,10 +25,10 @@ chain = sys.argv[1]
 if chain == "-h":
     print('\n# Usage: ./der_simulator_MT.py chain nuc_state n_sim nt nt_skip Nt alpha restart_flag\n')
     sys.exit()
-chain = int(sys.argv[1])       # index of simulation
+chain = int(sys.argv[1])       # simulation index
 nuc_state = sys.argv[2]        # nucleotide state (gtp or gdp)
 n_sim =int(sys.argv[3])        # number of restarts in a chain of simulations
-nt = int(sys.argv[4])          # number of steps in single simulation
+nt = int(sys.argv[4])          # number of steps in a single simulation
 nt_skip = int(sys.argv[5])     # save trajectory every nt_skip steps
 Nt = int(sys.argv[6])          # number of monomers in a PF
 alpha = float(sys.argv[7])     # scaling factor for lateral energies

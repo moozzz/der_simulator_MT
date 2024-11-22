@@ -1,4 +1,3 @@
-
 ###############################################
 # IMPORT MODULES
 ###############################################
@@ -56,6 +55,7 @@ def Fstretch(Nt, ed, tan, ht, Es):
     Fs = np.zeros((Nt+1, 3))
 
     for i in range(1, Nt):
+        # both intra and inter dimer
         Fstr[i] = Es[i]*(norm(ed[i])/ht[i] - 1.0)*tan[i]
 
     for i in range(1, Nt):
@@ -220,7 +220,7 @@ def Flat(Nt, M1, M2, v, tang, npf, epsilon_lat_homo, epsilon_lat_seam, a_lat_hom
     for p in range(npf):
         for i in range(1, Nt+1):
             if p == npf-1:
-                # SEAM
+                # seam
                 rr1 = get_coord(R1, M1[p, i-1], M2[p, i-1], tang[p, i-1])
                 rr2 = get_coord(R2, M1[0, i+2], M2[0, i+2], tang[0, i+2])
             
@@ -239,7 +239,7 @@ def Flat(Nt, M1, M2, v, tang, npf, epsilon_lat_homo, epsilon_lat_seam, a_lat_hom
                 Fl[p, i] += -fattr - frep
                 Fl[0, i] +=  fattr + frep
             else:
-                # HOMOTYPIC
+                # homotypic
                 rr1 = get_coord(R1, M1[p,   i-1], M2[p,   i-1], tang[p,   i-1])
                 rr2 = get_coord(R2, M1[p+1, i-1], M2[p+1, i-1], tang[p+1, i-1])
                 
