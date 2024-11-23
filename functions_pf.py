@@ -61,10 +61,8 @@ def computeMaterialFrame(Nt, Nt_max, U, V, theta):
     M2 = np.zeros((Nt_max, 3))
 
     for i in range(Nt):
-        c = np.cos(theta[i])
-        s = np.sin(theta[i])
-        M1[i] = c*U[i] + s*V[i]
-        M2[i] = -s*U[i] + c*V[i]
+        M1[i] =  np.cos(theta[i]) * U[i] + np.sin(theta[i]) * V[i]
+        M2[i] = -np.sin(theta[i]) * U[i] + np.cos(theta[i]) * V[i]
 
     return M1, M2
 
@@ -130,14 +128,16 @@ def computedKde(Nt, Nt_max, M, kb, tan, ed, inEdge, sign):
     Mtilda = np.zeros((Nt_max+1, 3))
     dKde = np.zeros((Nt_max+1, 3))
 
+    ed_norms = np.array([norm(x) for x in ed])
+
     for i in range(1, Nt):
         Ttilda[i] = (tan[i-1] + tan[i]) / (1.0 + np.dot(tan[i-1], tan[i]))
-        Mtilda[i] = (M[i-1] + M[i]) / (1.0 + np.dot(tan[i-1], tan[i]))
+        Mtilda[i] = (M[i-1]   + M[i]  ) / (1.0 + np.dot(tan[i-1], tan[i]))
 
         if inEdge:
-            dKde[i] = 1.0 / norm(ed[i])   * (-K[i] * Ttilda[i] - sign * np.cross(tan[i-1], Mtilda[i]))
+            dKde[i] = 1.0 / ed_norms[i]   * (-K[i] * Ttilda[i] - sign * np.cross(tan[i-1], Mtilda[i]))
         else:
-            dKde[i] = 1.0 / norm(ed[i-1]) * (-K[i] * Ttilda[i] + sign * np.cross(tan[i], Mtilda[i]))
+            dKde[i] = 1.0 / ed_norms[i-1] * (-K[i] * Ttilda[i] + sign * np.cross(tan[i],   Mtilda[i]))
 
     return dKde
 
