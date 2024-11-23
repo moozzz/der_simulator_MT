@@ -15,10 +15,8 @@ from functions_pf import computeMaterialFrame
 from functions_pf import computeVoronoiLen
 from functions_pf import computeCurvatureBinormals
 from functions_pf import computeTwist
-from functions_pf import computeK1
-from functions_pf import computeK2
-from functions_pf import computedK1de
-from functions_pf import computedK2de
+from functions_pf import computeK
+from functions_pf import computedKde
 
 #from functions_forces import Fstretch
 from functions_forces import Fstretch_diss
@@ -55,6 +53,8 @@ def fill_params(v1, v2, Nt):
 ###############################################
 @njit(fastmath=True)
 def run_bd_mt(nt, nt_skip, Nt_array, npf, flag_restart, v_restart, theta_restart, mref_restart, ut_restart, vt_restart, params_diff, params_means, params_stiff):
+
+    np.random.seed(111)
 
     kbt = 2.5 # kJ/mol
     R_MT = 12.0 # nm

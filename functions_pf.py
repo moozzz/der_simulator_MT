@@ -17,17 +17,13 @@ def get_angle(vec1, vec2, vn):
     return np.arctan2( np.dot(np.cross(vec1, vec2), vn), np.dot(vec1, vec2) )
 
 @njit(fastmath=True)
-def normalized(vec):
-    return vec / norm(vec)
-
-@njit(fastmath=True)
 def parallel_transport(u, t1, t2):
     b = np.cross(t1, t2)
 
     if norm(b) == 0.0:
         return u
 
-    b = normalized(b)
+    b = b / norm(b)
     n1 = np.cross(t1, b)
     n2 = np.cross(t2, b)
 
@@ -51,7 +47,7 @@ def computeBishopFrame(Nt, Nt_max, t0, u0, tang):
     for i in range(Nt):
         t1 = tang[i]
         u = parallel_transport(u, t0, t1)
-        u = normalized(u)
+        u = u / norm(u)
         v = np.cross(t1, u)
         U[i] = u
         V[i] = v
@@ -99,7 +95,7 @@ def computeTangents(Nt, Nt_max, ed):
     tang = np.zeros((Nt_max, 3))
 
     for i in range(Nt):
-        tang[i] = normalized(ed[i])
+        tang[i] = ed[i] / norm(ed[i])
 
     return tang
 
@@ -113,22 +109,13 @@ def computeTwist(Nt, Nt_max, theta, mref):
     return Mtwist
 
 @njit(fastmath=True)
-def computeK1(Nt, Nt_max, M2, kb):
-    K1 = np.zeros(Nt_max+1)
+def computeK(Nt, Nt_max, M, kb, sign):
+    K = np.zeros(Nt_max+1)
 
     for i in range(1, Nt):
-        K1[i] = 0.5 * np.dot((M2[i-1] + M2[i]), kb[i])
+        K[i] = sign * 0.5 * np.dot((M[i-1] + M[i]), kb[i])
 
-    return K1
-
-@njit(fastmath=True)
-def computeK2(Nt, Nt_max, M1, kb):
-    K2 = np.zeros(Nt_max+1)
-
-    for i in range(1, Nt):
-        K2[i] = -0.5 * np.dot((M1[i-1] + M1[i]), kb[i])
-
-    return K2
+    return K
 
 
 
@@ -137,67 +124,39 @@ def computeK2(Nt, Nt_max, M1, kb):
 ###########################################################
 
 @njit(fastmath=True)
-def computedK1de(Nt, Nt_max, M2, kb, tan, ed, inEdge):
-    K1 = computeK1(Nt, Nt_max, M2, kb)
+def computedKde(Nt, Nt_max, M, kb, tan, ed, inEdge, sign):
+    K = computeK(Nt, Nt_max, M, kb, sign)
     Ttilda = np.zeros((Nt_max+1, 3))
     Mtilda = np.zeros((Nt_max+1, 3))
-    dK1de = np.zeros((Nt_max+1, 3))
+    dKde = np.zeros((Nt_max+1, 3))
 
     for i in range(1, Nt):
         Ttilda[i] = (tan[i-1] + tan[i]) / (1.0 + np.dot(tan[i-1], tan[i]))
-        Mtilda[i] = (M2[i-1] + M2[i]) / (1.0 + np.dot(tan[i-1], tan[i]))
+        Mtilda[i] = (M[i-1] + M[i]) / (1.0 + np.dot(tan[i-1], tan[i]))
 
         if inEdge:
-            dK1de[i] = 1.0/norm(ed[i]) * ( -K1[i]*Ttilda[i] - np.cross(tan[i-1], Mtilda[i]) )
+            dKde[i] = 1.0 / norm(ed[i])   * (-K[i] * Ttilda[i] - sign * np.cross(tan[i-1], Mtilda[i]))
         else:
-            dK1de[i] = 1.0/norm(ed[i-1]) * ( -K1[i]*Ttilda[i] + np.cross(tan[i], Mtilda[i]) )
+            dKde[i] = 1.0 / norm(ed[i-1]) * (-K[i] * Ttilda[i] + sign * np.cross(tan[i], Mtilda[i]))
 
-    return dK1de
-
-@njit(fastmath=True)
-def computedK2de(Nt, Nt_max, M1, kb, tan, ed, inEdge):
-    K2 = computeK2(Nt, Nt_max, M1, kb)
-    Ttilda = np.zeros((Nt_max+1, 3))
-    Mtilda = np.zeros((Nt_max+1, 3))
-    dK2de = np.zeros((Nt_max+1, 3))
-
-    for i in range(1, Nt):
-        Ttilda[i] = (tan[i-1] + tan[i]) / (1.0 + np.dot(tan[i-1], tan[i]))
-        Mtilda[i] = (M1[i-1] + M1[i]) / (1.0 + np.dot(tan[i-1], tan[i]))
-
-        if inEdge:
-            dK2de[i] = 1.0/norm(ed[i]) * ( -K2[i]*Ttilda[i] + np.cross(tan[i-1], Mtilda[i]) )
-        else:
-            dK2de[i] = 1.0/norm(ed[i-1]) * ( -K2[i]*Ttilda[i] - np.cross(tan[i], Mtilda[i]) )
-
-    return dK2de
+    return dKde
 
 @njit(fastmath=True)
 def computedEdm(Nt, Nt_max, Mtwist, lv, Mtwist_eq):
     dEdm = np.zeros(Nt_max+1)
 
     for i in range(1, Nt):
-        dEdm[i] = 1.0/lv[i]*(Mtwist[i] - Mtwist_eq[i])
+        dEdm[i] = 1.0 / lv[i] * (Mtwist[i] - Mtwist_eq[i])
 
     return dEdm
 
 @njit(fastmath=True)
-def computedEdK1(Nt, Nt_max, M2, lv, kb, K1eq):
-    dEdK1 = np.zeros(Nt_max+1)
-    K1 = computeK1(Nt, Nt_max, M2, kb)
+def computedEdK(Nt, Nt_max, M, lv, kb, Keq, sign):
+    dEdK = np.zeros(Nt_max+1)
+    K = computeK(Nt, Nt_max, M, kb, sign)
 
     for i in range(1, Nt):
-        dEdK1[i] = 1.0/lv[i]*(K1[i] - K1eq[i])
+        dEdK[i] = 1.0 / lv[i] * (K[i] - Keq[i])
 
-    return dEdK1
-
-@njit(fastmath=True)
-def computedEdK2(Nt, Nt_max, M1, lv, kb, K2eq):
-    dEdK2 = np.zeros(Nt_max+1)
-    K2 = computeK2(Nt, Nt_max, M1, kb)
-
-    for i in range(1, Nt):
-        dEdK2[i] = 1.0/lv[i]*(K2[i] - K2eq[i])
-
-    return dEdK2
+    return dEdK
 

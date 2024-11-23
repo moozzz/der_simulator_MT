@@ -14,14 +14,11 @@ from functions_pf import computeMaterialFrame
 from functions_pf import computeVoronoiLen
 from functions_pf import computeCurvatureBinormals
 from functions_pf import computeTwist
-from functions_pf import computeK1
-from functions_pf import computeK2
+from functions_pf import computeK
 
-from functions_pf import computedK1de
-from functions_pf import computedK2de
+from functions_pf import computedKde
 from functions_pf import computedEdm
-from functions_pf import computedEdK1
-from functions_pf import computedEdK2
+from functions_pf import computedEdK
 
 
 
@@ -67,14 +64,14 @@ def Fstretch(Nt, Nt_max, ed, tan, ht, Es):
 
 @njit(fastmath=True)
 def Fbend(Nt, Nt_max, M1, M2, kb, tan, ed, lv, K1eq, K2eq, Ek1, Ek2):
-    dK1de = computedK1de(Nt, Nt_max, M2, kb, tan, ed, True)
-    dK2de = computedK2de(Nt, Nt_max, M1, kb, tan, ed, True)
+    dK1de = computedKde(Nt, Nt_max, M2, kb, tan, ed, True, 1.0)
+    dK2de = computedKde(Nt, Nt_max, M1, kb, tan, ed, True, -1.0)
 
-    dK1de_1 = computedK1de(Nt, Nt_max, M2, kb, tan, ed, False)
-    dK2de_1 = computedK2de(Nt, Nt_max, M1, kb, tan, ed, False)
+    dK1de_1 = computedKde(Nt, Nt_max, M2, kb, tan, ed, False, 1.0)
+    dK2de_1 = computedKde(Nt, Nt_max, M1, kb, tan, ed, False, -1.0)
 
-    K1 = computeK1(Nt, Nt_max, M2, kb)
-    K2 = computeK2(Nt, Nt_max, M1, kb)
+    K1 = computeK(Nt, Nt_max, M2, kb, 1.0)
+    K2 = computeK(Nt, Nt_max, M1, kb, -1.0)
 
     Fb = np.zeros((Nt_max+1, 3))
 
@@ -120,9 +117,9 @@ def Ftwist_theta(Nt, Nt_max, Mtwist, lv, Mtwist_eq, Et):
 
 @njit(fastmath=True)
 def FcoupleM_k2(Nt, Nt_max, Mtwist, kb, lv, tan, ed, M1, Mtwist_eq, K2eq, Etb2):
-    dEdK2 = computedEdK2(Nt, Nt_max, M1, lv, kb, K2eq)
-    dK2de = computedK2de(Nt, Nt_max, M1, kb, tan, ed, True)
-    dK2de_1 = computedK2de(Nt, Nt_max, M1, kb, tan, ed, False)
+    dEdK2 = computedEdK(Nt, Nt_max, M1, lv, kb, K2eq, -1.0)
+    dK2de = computedKde(Nt, Nt_max, M1, kb, tan, ed, True, -1.0)
+    dK2de_1 = computedKde(Nt, Nt_max, M1, kb, tan, ed, False, -1.0)
     dEdm = computedEdm(Nt, Nt_max, Mtwist, lv, Mtwist_eq)
 
     Ftb = np.zeros((Nt_max+1, 3))
@@ -145,7 +142,7 @@ def FcoupleM_k2(Nt, Nt_max, Mtwist, kb, lv, tan, ed, M1, Mtwist_eq, K2eq, Etb2):
 
 @njit(fastmath=True)
 def Fcouple_theta2(Nt, Nt_max, M1, lv, kb, K2eq, Etb2):
-    dEdK2 = computedEdK2(Nt, Nt_max, M1, lv, kb, K2eq)
+    dEdK2 = computedEdK(Nt, Nt_max, M1, lv, kb, K2eq, -1.0)
     FtbTheta = np.zeros(Nt_max+1)
 
     for i in range(1, Nt-1):
