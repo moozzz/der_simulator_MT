@@ -57,12 +57,11 @@ def computeBishopFrame(Nt, Nt_max, t0, u0, tang):
 
 @njit(fastmath=True)
 def computeMaterialFrame(Nt, Nt_max, U, V, theta):
-    M1 = np.zeros((Nt_max, 3))
-    M2 = np.zeros((Nt_max, 3))
+    cos_theta = np.cos(theta)
+    sin_theta = np.sin(theta)
 
-    for i in range(Nt):
-        M1[i] =  np.cos(theta[i]) * U[i] + np.sin(theta[i]) * V[i]
-        M2[i] = -np.sin(theta[i]) * U[i] + np.cos(theta[i]) * V[i]
+    M1 = cos_theta[:, None] * U + sin_theta[:, None] * V
+    M2 = -sin_theta[:, None] * U + cos_theta[:, None] * V
 
     return M1, M2
 
