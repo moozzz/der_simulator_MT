@@ -31,18 +31,20 @@ def Fstretch_diss(Nt, Nt_max, ed, tan, ht, Es, epsilon, a):
     Fstr = np.zeros((Nt_max+1, 3))
     Fs = np.zeros((Nt_max+1, 3))
 
+    ed_norms = np.array([norm(x) for x in ed])
+
     for i in range(1, Nt):
         if i % 2 != 0:
             # intra dimer
-            Fstr[i] = Es[i]*(norm(ed[i])/ht[i] - 1.0)*tan[i]
+            Fstr[i] = Es[i]*(ed_norms[i]/ht[i] - 1.0)*tan[i]
         else:
             # inter dimer
-            Fstr[i] = 2.0*epsilon*a*np.exp( -a*(norm(ed[i]) - ht[i]) ) * (1.0 - np.exp( -a*(norm(ed[i]) - ht[i]) )) * tan[i]
+            Fstr[i] = 2.0*epsilon*a*np.exp( -a*(ed_norms[i] - ht[i]) ) * (1.0 - np.exp( -a*(ed_norms[i] - ht[i]) )) * tan[i]
 
     for i in range(1, Nt):
         Fs[i] = Fstr[i] - Fstr[i-1]
 
-    Fs[Nt] = -Es[Nt-1]*(norm(ed[Nt-1])/ht[Nt-1] - 1.0)*tan[Nt-1]
+    Fs[Nt] = -Es[Nt-1]*(ed_norms[Nt-1]/ht[Nt-1] - 1.0)*tan[Nt-1]
 
     return Fs
 
@@ -51,14 +53,16 @@ def Fstretch(Nt, Nt_max, ed, tan, ht, Es):
     Fstr = np.zeros((Nt_max+1, 3))
     Fs = np.zeros((Nt_max+1, 3))
 
+    ed_norms = np.array([norm(x) for x in ed])
+
     for i in range(1, Nt):
         # both intra and inter dimer
-        Fstr[i] = Es[i]*(norm(ed[i])/ht[i] - 1.0)*tan[i]
+        Fstr[i] = Es[i]*(ed_norms[i]/ht[i] - 1.0)*tan[i]
 
     for i in range(1, Nt):
         Fs[i] = Fstr[i] - Fstr[i-1]
     
-    Fs[Nt] = -Es[Nt-1]*(norm(ed[Nt-1])/ht[Nt-1] - 1.0)*tan[Nt-1]
+    Fs[Nt] = -Es[Nt-1]*(ed_norms[Nt-1]/ht[Nt-1] - 1.0)*tan[Nt-1]
 
     return Fs
 
@@ -94,12 +98,14 @@ def Ftwist(Nt, Nt_max, ed, Mtwist, kb, lv, Mtwist_eq, Et):
     Ft = np.zeros((Nt_max+1, 3))
     dEdm = computedEdm(Nt, Nt_max, Mtwist, lv, Mtwist_eq)
 
-    for i in range(1, Nt):
-        Ft[i] = Et[i]*dEdm[i] * ( 1.0/(2.0*norm(ed[i])) - 1.0/(2.0*norm(ed[i-1])) ) * kb[i] -\
-                Et[i-1]*dEdm[i-1] * 1.0/(2.0*norm(ed[i-1])) * kb[i-1] +\
-                Et[i+1]*dEdm[i+1] * 1.0/(2.0*norm(ed[i])) * kb[i+1]
+    ed_norms = np.array([norm(x) for x in ed])
 
-    Ft[Nt] = -Et[Nt-1]*dEdm[Nt-1] * ( 1.0/(2.0*norm(ed[Nt-1])) ) * kb[Nt-1]
+    for i in range(1, Nt):
+        Ft[i] = Et[i]*dEdm[i] * ( 1.0/(2.0*ed_norms[i]) - 1.0/(2.0*ed_norms[i-1]) ) * kb[i] -\
+                Et[i-1]*dEdm[i-1] * 1.0/(2.0*ed_norms[i-1]) * kb[i-1] +\
+                Et[i+1]*dEdm[i+1] * 1.0/(2.0*ed_norms[i]) * kb[i+1]
+
+    Ft[Nt] = -Et[Nt-1]*dEdm[Nt-1] * ( 1.0/(2.0*ed_norms[Nt-1]) ) * kb[Nt-1]
 
     return Ft
 
@@ -124,6 +130,8 @@ def FcoupleM_k2(Nt, Nt_max, Mtwist, kb, lv, tan, ed, M1, Mtwist_eq, K2eq, Etb2):
 
     Ftb = np.zeros((Nt_max+1, 3))
 
+    ed_norms = np.array([norm(x) for x in ed])
+
     for i in range(1, Nt):
         dEde = Etb2[i] * dEdm[i] * dK2de[i] +\
                Etb2[i+1] * dEdm[i+1] * dK2de_1[i+1]
@@ -131,12 +139,12 @@ def FcoupleM_k2(Nt, Nt_max, Mtwist, kb, lv, tan, ed, M1, Mtwist_eq, K2eq, Etb2):
         dEde_1 = Etb2[i-1] * dEdm[i-1] * dK2de[i-1] +\
                  Etb2[i] * dEdm[i] * dK2de_1[i]
 
-        Ftb[i] = Etb2[i]*dEdK2[i] * ( 1.0/(2.0*norm(ed[i])) - 1/(2*norm(ed[i-1])) ) * kb[i] -\
-                 Etb2[i-1]*dEdK2[i-1] * 1.0/(2.0*norm(ed[i-1])) * kb[i-1] +\
-                 Etb2[i+1]*dEdK2[i+1] * 1.0/(2.0*norm(ed[i])) * kb[i+1] -\
+        Ftb[i] = Etb2[i]*dEdK2[i] * ( 1.0/(2.0*ed_norms[i]) - 1/(2*ed_norms[i-1]) ) * kb[i] -\
+                 Etb2[i-1]*dEdK2[i-1] * 1.0/(2.0*ed_norms[i-1]) * kb[i-1] +\
+                 Etb2[i+1]*dEdK2[i+1] * 1.0/(2.0*ed_norms[i]) * kb[i+1] -\
                  dEde_1 + dEde
 
-    Ftb[Nt] =  -Etb2[Nt-1] * (dEdK2[Nt-1] * ( 1.0/(2.0*norm(ed[Nt-1])) ) * kb[Nt-1] + dEdm[Nt-1] * dK2de[Nt-1])
+    Ftb[Nt] =  -Etb2[Nt-1] * (dEdK2[Nt-1] * ( 1.0/(2.0*ed_norms[Nt-1]) ) * kb[Nt-1] + dEdm[Nt-1] * dK2de[Nt-1])
 
     return Ftb
 
