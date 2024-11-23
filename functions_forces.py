@@ -18,41 +18,22 @@ from functions_pf import computedEdK
 ###############################################
 
 @njit(fastmath=True)
-def Fstretch_diss(Nt, Nt_max, ed, tan, ht, Es, epsilon, a):
+def Fstretch(Nt, Nt_max, ed, tan, ht, Es, mode_long=0.0, epsilon=None, a=None):
     Fstr = np.zeros((Nt_max+1, 3))
     Fs = np.zeros((Nt_max+1, 3))
 
     ed_norms = np.array([norm(x) for x in ed])
 
     for i in range(1, Nt):
-        if i % 2 != 0:
-            # intra dimer
-            Fstr[i] = Es[i] * (ed_norms[i] / ht[i] - 1.0) * tan[i]
-        else:
-            # inter dimer
-            Fstr[i] = 2.0 * epsilon * a * np.exp( -a * (ed_norms[i] - ht[i]) ) * (1.0 - np.exp( -a * (ed_norms[i] - ht[i]) )) * tan[i]
-
-    for i in range(1, Nt):
-        Fs[i] = Fstr[i] - Fstr[i-1]
-
-    Fs[Nt] = -Es[Nt-1] * (ed_norms[Nt-1] / ht[Nt-1] - 1.0) * tan[Nt-1]
-
-    return Fs
-
-@njit(fastmath=True)
-def Fstretch(Nt, Nt_max, ed, tan, ht, Es):
-    Fstr = np.zeros((Nt_max+1, 3))
-    Fs = np.zeros((Nt_max+1, 3))
-
-    ed_norms = np.array([norm(x) for x in ed])
-
-    for i in range(1, Nt):
-        # both intra and inter dimer
         Fstr[i] = Es[i] * (ed_norms[i] / ht[i] - 1.0) * tan[i]
 
+        if mode_long == 1.0 and i % 2 == 0:
+            # only for inter-dimer interfaces
+            Fstr[i] = 2.0 * epsilon * a * np.exp( -a * (ed_norms[i] - ht[i]) ) * ( 1.0 - np.exp( -a * (ed_norms[i] - ht[i]) ) ) * tan[i]
+
     for i in range(1, Nt):
         Fs[i] = Fstr[i] - Fstr[i-1]
-    
+
     Fs[Nt] = -Es[Nt-1] * (ed_norms[Nt-1] / ht[Nt-1] - 1.0) * tan[Nt-1]
 
     return Fs

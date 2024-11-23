@@ -18,8 +18,7 @@ from functions_pf import computeTwist
 from functions_pf import computeK
 from functions_pf import computedKde
 
-#from functions_forces import Fstretch
-from functions_forces import Fstretch_diss
+from functions_forces import Fstretch
 from functions_forces import Fbend
 from functions_forces import Ftwist
 from functions_forces import Ftwist_theta
@@ -80,11 +79,12 @@ def run_bd_mt(nt, nt_skip, Nt_array, npf, flag_restart, v_restart, theta_restart
     Etb2 = fill_params(params_stiff[8], params_stiff[9], Nt_max) # kJ/mol*nm
     epsilon_long = params_stiff[10] # kJ/mol
     a_long = params_stiff[11] # 1/nm
-    epsilon_lat_homo = params_stiff[12] # kJ/mol
-    epsilon_lat_seam = params_stiff[13] # kJ/mol
-    a_lat_homo = params_stiff[14] # 1/nm
-    a_lat_seam = params_stiff[15] # 1/nm
-    alpha = params_stiff[16]
+    mode_long = params_stiff[12] # 0 = harmonic, 1 = morse
+    epsilon_lat_homo = params_stiff[13] # kJ/mol
+    epsilon_lat_seam = params_stiff[14] # kJ/mol
+    a_lat_homo = params_stiff[15] # 1/nm
+    a_lat_seam = params_stiff[16] # 1/nm
+    alpha = params_stiff[17]
 
     ################################
     # Starting configuration
@@ -196,8 +196,7 @@ def run_bd_mt(nt, nt_skip, Nt_array, npf, flag_restart, v_restart, theta_restart
             flv = np.zeros((npf, Nt_max+1, 3))
 
         for p in range(npf):
-            #fs = Fstretch(Nt_array[p], Nt_max, ed[p], tang[p], ht, Es)
-            fs = Fstretch_diss(Nt_array[p], Nt_max, ed[p], tang[p], ht, Es, epsilon_long, a_long)
+            fs = Fstretch(Nt_array[p], Nt_max, ed[p], tang[p], ht, Es, mode_long, epsilon_long, a_long)
             fb = Fbend(Nt_array[p], Nt_max, M1[p], M2[p], kb[p], tang[p], ed[p], lv[p], K1eq, K2eq, Ek1, Ek2)
             ft = Ftwist(Nt_array[p], Nt_max, ed[p], Mtwist[p], kb[p], lv[p], Mtwist_eq, Et)
             ft_theta = Ftwist_theta(Nt_array[p], Nt_max, Mtwist[p], lv[p], Mtwist_eq, Et)

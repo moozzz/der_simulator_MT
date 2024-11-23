@@ -69,11 +69,12 @@ if nuc_state == 'gtp':
                               8276.75849097318,      #17 inter Etb2, kJ/mol*nm
                               24.0*2.5,              #18 epsilon_long, kJ/mol
                               3.650588936,           #19 a_long, shape, 1/nm
-                              28.729752,             #20 epsilon_lat_homo, kJ/mol
-                              21.021939,             #21 epsilon_lat_seam, kJ/mol
-                              2.061726,              #22 a_lat_homo, shape, 1/nm
-                              1.528234,              #23 a_lat_seam, shape, 1/nm
-                              alpha                  #24 scaling factor for lateral energies
+                              1.0,                   #20 mode_long, 0 = harmonic, 1 = morse
+                              28.729752,             #21 epsilon_lat_homo, kJ/mol
+                              21.021939,             #22 epsilon_lat_seam, kJ/mol
+                              2.061726,              #23 a_lat_homo, shape, 1/nm
+                              1.528234,              #24 a_lat_seam, shape, 1/nm
+                              alpha                  #25 scaling factor for lateral energies
                             ])
 elif nuc_state == 'gdp':
     # NOTE: GDP
@@ -104,11 +105,12 @@ elif nuc_state == 'gdp':
                               9039.674533560048,     #17 inter Etb2, kJ/mol*nm
                               24.0*2.5,              #18 epsilon_long, kJ/mol
                               4.806408919,           #19 a_long, shape, 1/nm
-                              42.853914,             #20 epsilon_lat_homo, kJ/mol
-                              25.857480,             #21 epsilon_lat_seam, kJ/mol
-                              2.164717,              #22 a_lat_homo, shape, 1/nm
-                              2.363691,              #23 a_lat_seam, shape, 1/nm
-                              alpha                  #24 scaling factor for lateral energies
+                              1.0,                   #20 mode_long, 0 = harmonic, 1 = morse
+                              42.853914,             #21 epsilon_lat_homo, kJ/mol
+                              25.857480,             #22 epsilon_lat_seam, kJ/mol
+                              2.164717,              #23 a_lat_homo, shape, 1/nm
+                              2.363691,              #24 a_lat_seam, shape, 1/nm
+                              alpha                  #25 scaling factor for lateral energies
                             ])
 else:
     print('\nNucleotide state can be either GTP or GDP!\n')
