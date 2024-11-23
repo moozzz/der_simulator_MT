@@ -32,9 +32,7 @@ def parallel_transport(u, t1, t2):
 @njit(fastmath=True)
 def computeEdges(Nt, Nt_max, v):
     ed = np.zeros((Nt_max, 3))
-
-    for i in range(Nt):
-        ed[i] = v[i+1] - v[i]
+    ed[:Nt] = v[1:Nt + 1] - v[:Nt]
 
     return ed
 
@@ -57,10 +55,12 @@ def computeBishopFrame(Nt, Nt_max, t0, u0, tang):
 
 @njit(fastmath=True)
 def computeMaterialFrame(Nt, Nt_max, U, V, theta):
+    M1 = np.zeros((Nt_max+1, 3))
+    M2 = np.zeros((Nt_max+1, 3))
+
     cos_theta = np.cos(theta)
     sin_theta = np.sin(theta)
-
-    M1 = cos_theta[:, None] * U + sin_theta[:, None] * V
+    M1 =  cos_theta[:, None] * U + sin_theta[:, None] * V
     M2 = -sin_theta[:, None] * U + cos_theta[:, None] * V
 
     return M1, M2
@@ -68,11 +68,13 @@ def computeMaterialFrame(Nt, Nt_max, U, V, theta):
 @njit(fastmath=True)
 def computeVoronoiLen(Nt, Nt_max, ed):
     lv = np.zeros(Nt_max+1)
-    lv[0]  = 0.5 * norm(ed[0])
-    lv[Nt] = 0.5 * norm(ed[Nt])
+
+    ed_norms = np.array([norm(x) for x in ed])
+    lv[0]  = 0.5 * ed_norms[0]
+    lv[Nt] = 0.5 * ed_norms[Nt]
 
     for i in range(1, Nt):
-        lv[i] = 0.5 * (norm(ed[i-1]) + norm(ed[i]))
+        lv[i] = 0.5 * (ed_norms[i-1] + ed_norms[i])
 
     return lv
 
@@ -91,8 +93,10 @@ def computeCurvatureBinormals(Nt, Nt_max, tang):
 def computeTangents(Nt, Nt_max, ed):
     tang = np.zeros((Nt_max, 3))
 
+    ed_norms = np.array([norm(x) for x in ed])
+
     for i in range(Nt):
-        tang[i] = ed[i] / norm(ed[i])
+        tang[i] = ed[i] / ed_norms[i]
 
     return tang
 
