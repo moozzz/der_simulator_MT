@@ -37,7 +37,7 @@
 
 * `nt_skip` -- only save every `nt_skip`-th frame
 
-* `Nt` -- array with the number of tubulin monomers in each PF (`Nt/2` dimers)
+* `Nt_array` -- array with the number of tubulin monomers `Nt` in each PF (`Nt/2` dimers)
 
 * `alpha` -- scaling factor for the lateral interaction energy `Ulat`
 
