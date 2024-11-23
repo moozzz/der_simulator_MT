@@ -32,6 +32,7 @@ def parallel_transport(u, t1, t2):
 @njit(fastmath=True)
 def computeEdges(Nt, Nt_max, v):
     ed = np.zeros((Nt_max, 3))
+
     ed[:Nt] = v[1:Nt + 1] - v[:Nt]
 
     return ed
