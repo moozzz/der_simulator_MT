@@ -13,6 +13,9 @@ traj_dir = sys.argv[2]
 R = np.load(traj_vert)
 RD = np.load(traj_dir)
 
+print(R[0].shape)
+print(RD[0].shape)
+
 N_frames = int(R.shape[0])
 N_PF = int(R.shape[1])
 Nt_array = np.zeros(N_PF, dtype=np.int8)
