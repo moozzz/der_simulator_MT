@@ -196,45 +196,26 @@ def Flat(Nt_array, M1, M2, v, tang, npf, epsilon_lat_homo, epsilon_lat_seam, a_l
     R2 = -np.array([ 0.44504187, -1.94985582, -0.8845 ]) # eq coordinate of shifted right binding site
 
     for p in range(npf):
-        for i in range(1, Nt_array[p]+1):
-            if p == npf-1:
-                # seam
-                rr1 = get_coord(R1, M1[p, i-1], M2[p, i-1], tang[p, i-1])
-                rr2 = get_coord(R2, M1[0, i+2], M2[0, i+2], tang[0, i+2])
-            
-                rr1_unit = rr1 / norm(rr1)
-                rr2_unit = rr2 / norm(rr2)
-            
-                r1 = v[p,   i] + rr1
-                r2 = v[0, i+3] + rr2
+        seam = (p == npf-1)
+        R0_BS = R0_BS_seam if seam else R0_BS_homo
+        epsilon_lat = epsilon_lat_seam if seam else epsilon_lat_homo
+        a_lat = a_lat_seam if seam else a_lat_homo
 
-                r = r1 - r2
-                r_unit = r / norm(r)
-            
-                fattr = attr_flat(alpha * epsilon_lat_seam / 3.0, norm(r), r_unit, a_lat_seam, R0_BS_seam)
-                frep =  rep_flat(v[p, i], v[0, i+3], R0_COM_COM)
-            
-                Fl[p, i] += -fattr - frep
-                Fl[0, i] +=  fattr + frep
-            else:
-                # homotypic
-                rr1 = get_coord(R1, M1[p,   i-1], M2[p,   i-1], tang[p,   i-1])
-                rr2 = get_coord(R2, M1[p+1, i-1], M2[p+1, i-1], tang[p+1, i-1])
-                
-                rr1_unit = rr1 / norm(rr1)
-                rr2_unit = rr2 / norm(rr2)
-                
-                r1 = v[p,   i] + rr1
-                r2 = v[p+1, i] + rr2
-                
-                r = r1 - r2
-                r_unit = r / norm(r)
-                
-                fattr = attr_flat(alpha * epsilon_lat_homo / 3.0, norm(r), r_unit, a_lat_homo, R0_BS_homo)
-                frep =  rep_flat(v[p, i], v[p+1, i], R0_COM_COM)
-                
-                Fl[p,   i] += -fattr - frep
-                Fl[p+1, i] +=  fattr + frep
+        for i in range(1, Nt_array[p]+1):
+            rr1 = get_coord(R1, M1[p,           i-1], M2[p,           i-1], tang[p,           i-1])
+            rr2 = get_coord(R2, M1[(p+1) % npf, i-1], M2[(p+1) % npf, i-1], tang[(p+1) % npf, i-1])
+
+            r1 = v[p,           i] + rr1
+            r2 = v[(p+1) % npf, i] + rr2
+
+            r = r1 - r2
+            r_unit = r / norm(r)
+
+            fattr = attr_flat(alpha * epsilon_lat / 3.0, norm(r), r_unit, a_lat, R0_BS)
+            frep =  rep_flat(v[p, i], v[(p+1) % npf, i], R0_COM_COM)
+
+            Fl[p,           i] += -fattr - frep
+            Fl[(p+1) % npf, i] +=  fattr + frep
 
     return Fl
 
