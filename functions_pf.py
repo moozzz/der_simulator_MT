@@ -84,9 +84,7 @@ def computeCurvatureBinormals(Nt, Nt_max, tang):
     kb = np.zeros((Nt_max+1, 3))
 
     for i in range(1, Nt):
-        t1 = tang[i-1]
-        t2 = tang[i]
-        kb[i] = 2.0 * np.cross(t1, t2) / (1.0 + np.dot(t1, t2))
+        kb[i] = 2.0 * np.cross(tang[i-1], tang[i]) / (1.0 + np.dot(tang[i-1], tang[i]))
 
     return kb
 
