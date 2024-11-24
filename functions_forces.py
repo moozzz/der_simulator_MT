@@ -149,17 +149,17 @@ def get_coord(vec, m1, m2, t):
 @njit(fastmath=True)
 def rep_flat(v, v1, R0_COM_COM):
     # repulsive lateral force b/w nodes from LJ
-    # eps_rep - repulsive energy per node
+    # epsilon_rep - repulsive energy per node
     # R0_COM_COM - eq distance b/w nodes
 
-    eps_rep = 40.0 # kJ/mol
+    epsilon_rep = 40.0 # kJ/mol
     sig_rep = 4.4578 # nm
 
     r = v1 - v
     r_unit = r / norm(r)
 
     if norm(r) < R0_COM_COM:
-        rfl = 12.0 * eps_rep * ( sig_rep**12.0 / norm(r)**13.0 ) * r_unit
+        rfl = 12.0 * epsilon_rep * ( sig_rep**12.0 / norm(r)**13.0 ) * r_unit
     else:
         rfl = np.zeros(3)
 
