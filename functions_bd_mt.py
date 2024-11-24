@@ -15,8 +15,6 @@ from functions_pf import computeMaterialFrame
 from functions_pf import computeVoronoiLen
 from functions_pf import computeCurvatureBinormals
 from functions_pf import computeTwist
-from functions_pf import computeK
-from functions_pf import computedKde
 
 from functions_forces import Fstretch
 from functions_forces import Fbend
@@ -64,10 +62,12 @@ def run_bd_mt(nt, nt_skip, Nt_array, npf, flag_restart, v_restart, theta_restart
     # Unpacking model parameters
     ################################
     dv2 = params_diff[0]
+    sqrt_2_dv2 = np.sqrt(2.0 * dv2)
     dth2 = params_diff[1]
+    sqrt_2_dth2 = np.sqrt(2.0 * dth2)
 
     ht = fill_params(params_means[0], params_means[1], Nt_max) # nm
-    ht[0] = 8.15/2.0 # nm
+    ht[0] = 8.15 / 2.0 # nm
     K1eq = fill_params(params_means[2], params_means[3], Nt_max)
     K2eq = fill_params(params_means[4], params_means[5], Nt_max)
     Mtwist_eq = fill_params(params_means[6], params_means[7], Nt_max)
@@ -93,14 +93,17 @@ def run_bd_mt(nt, nt_skip, Nt_array, npf, flag_restart, v_restart, theta_restart
     # define necessary arrays
     ed = np.zeros((npf, Nt_max, 3))
     tang = np.zeros((npf, Nt_max, 3))
-    ut, vt = np.zeros((npf, Nt_max, 3)), np.zeros((npf, Nt_max, 3))
+    ut = np.zeros((npf, Nt_max, 3))
+    vt = np.zeros((npf, Nt_max, 3))
     Mtwist = np.zeros((npf, Nt_max+1))
     lv = np.zeros((npf, Nt_max+1))
-    M1, M2 = np.zeros((npf, Nt_max, 3)), np.zeros((npf, Nt_max, 3))
+    M1 = np.zeros((npf, Nt_max, 3))
+    M2 = np.zeros((npf, Nt_max, 3))
     kb = np.zeros((npf, Nt_max+1, 3))
     theta = np.zeros((npf, Nt_max))
     u0 = np.zeros((npf, 3))
     mref = np.zeros((npf, Nt_max))
+    t0 = np.array([0.0, 0.0, 1.0])
 
     if flag_restart:
         # start from last frame
@@ -113,22 +116,21 @@ def run_bd_mt(nt, nt_skip, Nt_array, npf, flag_restart, v_restart, theta_restart
         # locate PF positions on a circle
         init_pf_pos = np.zeros((npf, 2))
         for p in range(npf):
-            init_pf_pos[p, 0] = R_MT * np.cos(2.0*np.pi*p/14.0)
-            init_pf_pos[p, 1] = R_MT * np.sin(2.0*np.pi*p/14.0)
+            init_pf_pos[p, 0] = R_MT * np.cos(2.0 * np.pi * p / 14.0)
+            init_pf_pos[p, 1] = R_MT * np.sin(2.0 * np.pi * p / 14.0)
 
-        # create nodes
+        # initialize nodes
         v = np.zeros((npf, Nt_max+1, 3))
         for p in range(npf):
             temp_pos = 0.0
             for i in range(Nt_array[p]+1):
-                v[p, i] = np.array([init_pf_pos[p, 0], init_pf_pos[p, 1], temp_pos - 0.8845*p])
+                v[p, i] = np.array([init_pf_pos[p, 0], init_pf_pos[p, 1], temp_pos - 0.8845 * p])
                 temp_pos = ht[i] + temp_pos
 
         # initialize MT model
         for p in range(npf):
-            t0 = np.array([0.0, 0.0, 1.0])
             u_tem = -np.array([init_pf_pos[p, 0], init_pf_pos[p, 1], 0.0])
-            u0[p] = u_tem/norm(u_tem)
+            u0[p] = u_tem / norm(u_tem)
 
             ed[p] = computeEdges(Nt_array[p], Nt_max, v[p])
             tang[p] = computeTangents(Nt_array[p], Nt_max, ed[p])
@@ -139,24 +141,21 @@ def run_bd_mt(nt, nt_skip, Nt_array, npf, flag_restart, v_restart, theta_restart
             kb[p] = computeCurvatureBinormals(Nt_array[p], Nt_max, tang[p])
             M1[p, 0] = u0[p]
             M2[p, 0] = np.cross(t0, u0[p])
-
             ut[p, 0] = u0[p]
             vt[p, 0] = np.cross(t0, u0[p])
 
     ################################
     # Output arrays
     ################################
-    nn = int(nt//nt_skip)
-
-    traj_v = np.zeros((nn, npf, Nt_max+1, 3))
-    traj_dir = np.zeros((nn, npf, Nt_max, 3))
-    traj_theta = np.zeros((nn, npf, Nt_max))
-    traj_U = np.zeros((nn, npf, Nt_max, 3))
-    traj_V = np.zeros((nn, npf, Nt_max, 3))
-    traj_mref = np.zeros((nn, npf, Nt_max))
-    ut_1 = np.zeros((npf, Nt_max, 3))
-    vt_1 = np.zeros((npf, Nt_max, 3))
-    tang_1 = np.zeros((npf, Nt_max, 3))
+    traj_v     = np.zeros((int(nt // nt_skip), npf, Nt_max+1, 3))
+    traj_dir   = np.zeros((int(nt // nt_skip), npf, Nt_max, 3))
+    traj_theta = np.zeros((int(nt // nt_skip), npf, Nt_max))
+    traj_U     = np.zeros((int(nt // nt_skip), npf, Nt_max, 3))
+    traj_V     = np.zeros((int(nt // nt_skip), npf, Nt_max, 3))
+    traj_mref  = np.zeros((int(nt // nt_skip), npf, Nt_max))
+    ut_1       = np.zeros((npf, Nt_max, 3))
+    vt_1       = np.zeros((npf, Nt_max, 3))
+    tang_1     = np.zeros((npf, Nt_max, 3))
 
     ################################
     # Main time cycle
@@ -210,17 +209,17 @@ def run_bd_mt(nt, nt_skip, Nt_array, npf, flag_restart, v_restart, theta_restart
             # first and second nodes are static
             for i in range(2, Nt_array[p]+1):
                 v[p, i] = v[p, i] +\
-                          dv2/kbt*(fs[i] + fb[i] + ft[i] + fc2[i] + flv[p, i]) +\
-                          np.sqrt(2.0*dv2)*np.array([np.random.normal(),
-                                                     np.random.normal(),
-                                                     np.random.normal()])
+                          dv2 / kbt * (fs[i] + fb[i] + ft[i] + fc2[i] + flv[p, i]) +\
+                          sqrt_2_dv2 * np.array([np.random.normal(),
+                                                 np.random.normal(),
+                                                 np.random.normal()])
 
             # update angles
             # first edge rotation angle is static
             for i in range(1, Nt_array[p]):
                 theta[p, i] = theta[p, i] +\
-                              dth2/kbt*(ft_theta[i] + fc2_theta[i]) +\
-                              np.sqrt(2.0*dth2)*np.random.normal()
+                              dth2 / kbt * (ft_theta[i] + fc2_theta[i]) +\
+                              sqrt_2_dth2 * np.random.normal()
 
             ################################
             # Save for parallel transport
@@ -235,7 +234,7 @@ def run_bd_mt(nt, nt_skip, Nt_array, npf, flag_restart, v_restart, theta_restart
         if ts % nt_skip == 0:
             for p in range(npf):
                 for i in range(Nt_array[p]):
-                    traj_dir[frame, p, i] = v[p, i] + (v[p, i+1] - v[p, i])/2.0 + M1[p, i]*2.0
+                    traj_dir[frame, p, i] = v[p, i] + (v[p, i+1] - v[p, i]) / 2.0 + M1[p, i] * 2.0
 
             traj_v[frame] = v
             traj_theta[frame] = theta
