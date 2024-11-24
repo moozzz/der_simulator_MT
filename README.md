@@ -75,6 +75,6 @@ Kalutskii, M., H. Grubmüller, V.A. Volkov and M. Igaev (2024). *Microtubule dyn
 * do `./convert_der2pdb_MT.py traj_vert.npy traj_dir.npy` to convert python `.npy` trajectories into
   PDB files
 
-* use your favorite analysis tools such as `gromacs`, `MDAnalysis`, `MDTraj`, etc to analyze the PDB
+* use your favorite analysis tools such as `gromacs`, `MDAnalysis`, `VMD`, etc to analyze the PDB
   trajectories.
 
