@@ -8,7 +8,7 @@ Kalutskii, M., H. Grubmüller, V.A. Volkov and M. Igaev (2024). *Microtubule dyn
 
 * `der_simulator_MT.py` -- the main script for launching a MT end simulation
 
-* `params_bd_run.py` -- parameters of the BD run
+* `params_bd_ff.py` -- parameters of the BD run
 
 * `functions_pf.py` -- supplementary functions defining the PF kinematics
 
@@ -32,8 +32,6 @@ Kalutskii, M., H. Grubmüller, V.A. Volkov and M. Igaev (2024). *Microtubule dyn
 
 * `chain` -- simulation index (useful for labeling replicas when running multiple copies in parallel)
 
-* `nuc_state` -- nucleotide state (`gtp` or `gdp`)
-
 * `n_sim` -- number of restarts in a chain of simulations (useful for saving checkpoints when running
              running simulations on a cluster with a limited job time)
 
@@ -41,11 +39,23 @@ Kalutskii, M., H. Grubmüller, V.A. Volkov and M. Igaev (2024). *Microtubule dyn
 
 * `nt_skip` -- only save every `nt_skip`-th frame
 
+* `restart_flag` -- flag for restarting a simulation from the last frame (empty or `-r`)
+
 * `Nt_array` -- array with the number of tubulin monomers `Nt` in each PF (`Nt/2` dimers)
+
+* `npf` -- number of PFs
+
+* `Nt_max` -- length of the longest PF
+
+* `nuc_state` -- nucleotide state (`gtp` or `gdp`)
 
 * `alpha` -- scaling factor for the lateral interaction energy `Ulat`
 
-* `restart_flag` -- flag for restarting a simulation from the last frame (empty or `-r`)
+* `params_diff` -- rotational and translational diffusion constants
+
+* `params_means` -- mean edge lengths, curvatures and twists derived directly from MD
+
+* `params_ener` -- stiffness and energy parameters optimized with Fuzzy PSO
 
 ### How to run a single simulation:
 
