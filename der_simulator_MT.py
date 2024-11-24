@@ -9,9 +9,7 @@ from timeit import default_timer as timer
 import os
 import sys
 import numpy as np
-from numpy.linalg import norm as norm
 from npy_append_array import NpyAppendArray
-from numba import njit
 
 from functions_bd_mt import run_bd_mt
 
