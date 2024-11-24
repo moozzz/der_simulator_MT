@@ -4,21 +4,13 @@
 # IMPORT MODULES
 ###############################################
 
-from timeit import default_timer as timer
-
 import os
 import sys
 import numpy as np
 from npy_append_array import NpyAppendArray
+from timeit import default_timer as timer
 
 from functions_bd_mt import run_bd_mt
-
-
-
-###############################################
-# BD RUN PARAMETERS
-###############################################
-
 from params_bd_run import *
 
 
@@ -54,7 +46,7 @@ if nuc_state == 'gtp':
 
     # NOTE: GTP
     # optimized with fuzzy pso
-    params_stiff = np.array([
+    params_ener = np.array([
                               6868.738719509609,     #8  beta  Es, kJ/mol/nm
                               6061.611683827584,     #9  alpha Es, kJ/mol/nm
                               4353.6596828386155,    #10 intra Ek1, kJ/mol*nm
@@ -90,7 +82,7 @@ elif nuc_state == 'gdp':
 
     # NOTE: GDP
     # optimized with fuzzy pso
-    params_stiff = np.array([
+    params_ener = np.array([
                               11397.296081806451,    #8  beta  Es, kJ/mol/nm
                               10492.293957440254,    #9  alpha Es, kJ/mol/nm
                               3250.9012385119554,    #10 intra Ek1, kJ/mol*nm
@@ -121,14 +113,11 @@ else:
 ###############################################
 
 folder_save = 'sim_mt_%s_%d_%.8f_%d'  % (nuc_state, Nt_max, alpha, chain)
+folder_files = ['traj_vert.npy', 'traj_theta.npy', 'traj_U.npy', 'traj_V.npy', 'traj_mref.npy', 'traj_dir.npy']
 
 for i in range(n_sim):
-    if restart_flag == '' and not os.path.exists('%s/traj_vert.npy'  % folder_save) and \
-                              not os.path.exists('%s/traj_dir.npy'   % folder_save) and \
-                              not os.path.exists('%s/traj_theta.npy' % folder_save) and \
-                              not os.path.exists('%s/traj_U.npy'     % folder_save) and \
-                              not os.path.exists('%s/traj_V.npy'     % folder_save) and \
-                              not os.path.exists('%s/traj_mref.npy'  % folder_save):
+    # initialize new or restart old simulation
+    if restart_flag == '' and not any(os.path.exists('%s/%s' % (folder_save, f)) for f in folder_files):
         print("\nStarting a new BD simulation...")
 
         v_restart     = np.zeros((npf, Nt_max+1, 3))
@@ -137,49 +126,38 @@ for i in range(n_sim):
         vt_restart    = np.zeros((npf, Nt_max+1, 3))
         mref_restart  = np.zeros((npf, Nt_max))
 
-        # save files in a separate folder
-        os.system('mkdir %s' % folder_save)
-    elif restart_flag == '-r' and os.path.exists('%s/traj_vert.npy'  % folder_save) and \
-                                  os.path.exists('%s/traj_dir.npy'   % folder_save) and \
-                                  os.path.exists('%s/traj_theta.npy' % folder_save) and \
-                                  os.path.exists('%s/traj_U.npy'     % folder_save) and \
-                                  os.path.exists('%s/traj_V.npy'     % folder_save) and \
-                                  os.path.exists('%s/traj_mref.npy'  % folder_save):
+        os.makedirs(folder_save)
+    elif restart_flag == '-r' and all(os.path.exists('%s/%s' % (folder_save, f)) for f in folder_files):
         print("\nRestarting from a previous BD simulation...")
 
-        v_restart     = np.load('%s/traj_vert.npy'  % folder_save)[-1]
-        theta_restart = np.load('%s/traj_theta.npy' % folder_save)[-1]
-        ut_restart    = np.load('%s/traj_U.npy'     % folder_save)[-1]
-        vt_restart    = np.load('%s/traj_V.npy'     % folder_save)[-1]
-        mref_restart  = np.load('%s/traj_mref.npy'  % folder_save)[-1]
+        v_restart     = np.load('%s/%s' % (folder_save, folder_files[0]))[-1]
+        theta_restart = np.load('%s/%s' % (folder_save, folder_files[1]))[-1]
+        ut_restart    = np.load('%s/%s' % (folder_save, folder_files[2]))[-1]
+        vt_restart    = np.load('%s/%s' % (folder_save, folder_files[3]))[-1]
+        mref_restart  = np.load('%s/%s' % (folder_save, folder_files[4]))[-1]
     else:
         print("\nUse -r flag to continue or remove files from the previous simulation!")
         print("Or there is nothing to restart from!\n")
         sys.exit()
 
+    # run BD
     t_start = timer()
-    traj_vert, traj_dir, traj_theta, traj_U, traj_V, traj_mref = run_bd_mt(nt, nt_skip, Nt_array, npf,
+    traj_vert, traj_theta, traj_U, traj_V, traj_mref, traj_dir = run_bd_mt(nt, nt_skip, Nt_array, npf,
                                                                            restart_flag, v_restart, theta_restart, mref_restart, ut_restart, vt_restart,
-                                                                           params_diff, params_means, params_stiff)
+                                                                           params_diff, params_means, params_ener)
     t_end = timer()
+
+    # estimate performance
     print('Total run time of cycle %d is %f sec' % (i, t_end - t_start))
     if i == 0:
         print('Performance will be estimated in the next cycle')
     else:
         print('Performance in cycle %d is %.1f µs/day' % (i, (nt*10.0/1e6) / ((t_end - t_start)/60.0/60.0/24.0) ))
 
-    with NpyAppendArray('%s/traj_vert.npy'  % folder_save) as file_vert:
-        file_vert.append(traj_vert)
-    with NpyAppendArray('%s/traj_dir.npy'   % folder_save) as file_dir:
-        file_dir.append(traj_dir)
-    with NpyAppendArray('%s/traj_theta.npy' % folder_save) as file_theta:
-        file_theta.append(traj_theta)
-    with NpyAppendArray('%s/traj_U.npy'     % folder_save) as file_U:
-        file_U.append(traj_U)
-    with NpyAppendArray('%s/traj_V.npy'     % folder_save) as file_V:
-        file_V.append(traj_V)
-    with NpyAppendArray('%s/traj_mref.npy'  % folder_save) as file_mref:
-        file_mref.append(traj_mref)
+    # append trajectory data to the respective files
+    for traj_x, f in zip([traj_vert, traj_theta, traj_U, traj_V, traj_mref, traj_dir], folder_files):
+        with NpyAppendArray('%s/%s' % (folder_save, f)) as file:
+            file.append(traj_x)
 
     if restart_flag == '':
         restart_flag = '-r'

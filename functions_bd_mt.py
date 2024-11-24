@@ -44,7 +44,7 @@ def fill_params(v1, v2, Nt):
     return params
 
 @njit(fastmath=True)
-def unpack_params(params_diff, params_means, params_stiff, Nt_max):
+def unpack_params(params_diff, params_means, params_ener, Nt_max):
     # diffision coefficients
     dv2 = params_diff[0]              # nm^2
     sqrt_2_dv2 = np.sqrt(2.0 * dv2)   # nm
@@ -59,23 +59,23 @@ def unpack_params(params_diff, params_means, params_stiff, Nt_max):
     ht[0] = 8.15 / 2.0
 
     # stiffness coefficients
-    Es   = fill_params(params_stiff[0], params_stiff[1], Nt_max) # kJ/mol/nm
-    Ek1  = fill_params(params_stiff[2], params_stiff[3], Nt_max) # kJ/mol*nm
-    Ek2  = fill_params(params_stiff[4], params_stiff[5], Nt_max) # kJ/mol*nm
-    Et   = fill_params(params_stiff[6], params_stiff[7], Nt_max) # kJ/mol*nm
-    Etb2 = fill_params(params_stiff[8], params_stiff[9], Nt_max) # kJ/mol*nm
+    Es   = fill_params(params_ener[0], params_ener[1], Nt_max) # kJ/mol/nm
+    Ek1  = fill_params(params_ener[2], params_ener[3], Nt_max) # kJ/mol*nm
+    Ek2  = fill_params(params_ener[4], params_ener[5], Nt_max) # kJ/mol*nm
+    Et   = fill_params(params_ener[6], params_ener[7], Nt_max) # kJ/mol*nm
+    Etb2 = fill_params(params_ener[8], params_ener[9], Nt_max) # kJ/mol*nm
 
     # longitudinal bond parameters
-    epsilon_long = params_stiff[10] # kJ/mol
-    a_long = params_stiff[11]       # 1/nm
-    mode_long = params_stiff[12]    # 0 = harmonic, 1 = morse
+    epsilon_long = params_ener[10] # kJ/mol
+    a_long = params_ener[11]       # 1/nm
+    mode_long = params_ener[12]    # 0 = harmonic, 1 = morse
 
     # lateral bond parameters
-    epsilon_lat_homo = params_stiff[13] # kJ/mol
-    epsilon_lat_seam = params_stiff[14] # kJ/mol
-    a_lat_homo = params_stiff[15]       # 1/nm
-    a_lat_seam = params_stiff[16]       # 1/nm
-    alpha = params_stiff[17]
+    epsilon_lat_homo = params_ener[13] # kJ/mol
+    epsilon_lat_seam = params_ener[14] # kJ/mol
+    a_lat_homo = params_ener[15]       # 1/nm
+    a_lat_seam = params_ener[16]       # 1/nm
+    alpha = params_ener[17]
 
     return (dv2, sqrt_2_dv2, dth2, sqrt_2_dth2,
             ht, K1eq, K2eq, Mtwist_eq,
@@ -155,7 +155,7 @@ def init_start_conf(flag_restart, Nt_array, Nt_max, npf, ht,
 # BROWNIAN DYNAMICS MODULE
 ###############################################
 @njit(fastmath=True)
-def run_bd_mt(nt, nt_skip, Nt_array, npf, flag_restart, v_restart, theta_restart, mref_restart, ut_restart, vt_restart, params_diff, params_means, params_stiff):
+def run_bd_mt(nt, nt_skip, Nt_array, npf, flag_restart, v_restart, theta_restart, mref_restart, ut_restart, vt_restart, params_diff, params_means, params_ener):
 
     np.random.seed(111)
 
@@ -169,7 +169,7 @@ def run_bd_mt(nt, nt_skip, Nt_array, npf, flag_restart, v_restart, theta_restart
      ht, K1eq, K2eq, Mtwist_eq,
      Es, Ek1, Ek2, Et, Etb2,
      epsilon_long, a_long, mode_long,
-     epsilon_lat_homo, epsilon_lat_seam, a_lat_homo, a_lat_seam, alpha) = unpack_params(params_diff, params_means, params_stiff, Nt_max)
+     epsilon_lat_homo, epsilon_lat_seam, a_lat_homo, a_lat_seam, alpha) = unpack_params(params_diff, params_means, params_ener, Nt_max)
 
     ################################
     # Starting configuration
@@ -278,5 +278,5 @@ def run_bd_mt(nt, nt_skip, Nt_array, npf, flag_restart, v_restart, theta_restart
             
             frame += 1
 
-    return traj_v, traj_dir, traj_theta, traj_U, traj_V, traj_mref
+    return traj_v, traj_theta, traj_U, traj_V, traj_mref, traj_dir
 
