@@ -4,7 +4,7 @@
 
 * `der_simulator_MT.py` -- the main script for launching a MT end simulation
 
-* `params_bd_run.py` -- parameters for the BD run
+* `params_bd_run.py` -- parameters of the BD run
 
 * `functions_pf.py` -- supplementary functions defining the PF kinematics
 
@@ -24,7 +24,7 @@
 
 * `npy-append-array>=0.9`
 
-### Parameters:
+### Parameters of the BD run:
 
 * `chain` -- simulation index (useful for labeling replicas when running multiple copies in parallel)
 
@@ -61,5 +61,6 @@
 * do `./convert_der2pdb_MT.py traj_vert.npy traj_dir.npy` to convert python `.npy` trajectories into
   PDB files
 
-* use your favorite analysis tools such as `gromacs`, `MDAnalysis`, etc to analyze the PDB trajectories.
+* use your favorite analysis tools such as `gromacs`, `MDAnalysis`, `MDTraj`, etc to analyze the PDB
+  trajectories.
 
