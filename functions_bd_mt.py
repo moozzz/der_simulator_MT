@@ -105,14 +105,14 @@ def init_start_conf(flag_restart, Nt_array, Nt_max, npf, ht,
     u0     = np.zeros((npf, 3))
     t0     = np.array([0.0, 0.0, 1.0])
     
-    if flag_restart:
+    if flag_restart == '-r':
         # start from last frame
         v = v_restart
         theta = theta_restart
         ut = ut_restart
         vt = vt_restart
         mref = mref_restart
-    else:
+    elif flag_restart == '':
         # locate PF positions on a circle
         init_pf_pos = np.zeros((npf, 2))
         for p in range(npf):
