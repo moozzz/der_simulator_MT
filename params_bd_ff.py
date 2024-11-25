@@ -25,9 +25,14 @@ restart_flag = ''
 # number of monomers in each PF
 Nt_array = np.array([12, 10, 16, 10, 10, 10, 6, 18, 10, 8, 8, 6, 4, 10])
 
-# number of PFs and max PF length
+# number of PFs
 npf = len(Nt_array)
+
+# maximum PF length in the MT
 Nt_max = int(np.max(Nt_array))
+
+# number of frozen tubulin monomers at the minus-end
+Nt_frozen = 1
 
 
 

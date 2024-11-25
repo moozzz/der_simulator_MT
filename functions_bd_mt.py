@@ -155,12 +155,10 @@ def init_start_conf(flag_restart, Nt_array, Nt_max, npf, ht,
 # BROWNIAN DYNAMICS MODULE
 ###############################################
 @njit(fastmath=True)
-def run_bd_mt(nt, nt_skip, Nt_array, npf, flag_restart, v_restart, theta_restart, mref_restart, ut_restart, vt_restart, params_diff, params_means, params_ener):
+def run_bd_mt(nt, nt_skip, Nt_array, npf, Nt_max, Nt_frozen, flag_restart, v_restart, theta_restart, mref_restart, ut_restart, vt_restart, params_diff, params_means, params_ener):
 
     np.random.seed(111)
-
     kbt = 2.5 # kJ/mol
-    Nt_max = int(np.max(Nt_array))
 
     ################################
     # Unpacking model parameters
@@ -240,8 +238,7 @@ def run_bd_mt(nt, nt_skip, Nt_array, npf, flag_restart, v_restart, theta_restart
             # Update coordinates and angles
             ################################
             # update coordinates
-            # first and second nodes are static
-            for i in range(2, Nt_array[p]+1):
+            for i in range(Nt_frozen+1, Nt_array[p]+1):
                 v[p, i] = v[p, i] +\
                           dv2 / kbt * (fs[i] + fb[i] + ft[i] + fc2[i] + flv[p, i]) +\
                           sqrt_2_dv2 * np.array([np.random.normal(),
@@ -249,8 +246,7 @@ def run_bd_mt(nt, nt_skip, Nt_array, npf, flag_restart, v_restart, theta_restart
                                                  np.random.normal()])
 
             # update angles
-            # first edge rotation angle is static
-            for i in range(1, Nt_array[p]):
+            for i in range(Nt_frozen, Nt_array[p]):
                 theta[p, i] = theta[p, i] +\
                               dth2 / kbt * (ft_theta[i] + fc2_theta[i]) +\
                               sqrt_2_dth2 * np.random.normal()
