@@ -155,10 +155,9 @@ def init_start_conf(flag_restart, Nt_array, Nt_max, npf, ht,
 # BROWNIAN DYNAMICS MODULE
 ###############################################
 @njit(fastmath=True)
-def run_bd_mt(nt, nt_skip, Nt_array, npf, Nt_max, Nt_frozen, flag_restart, v_restart, theta_restart, mref_restart, ut_restart, vt_restart, params_diff, params_means, params_ener):
+def run_bd_mt(nt, nt_skip, Nt_array, npf, Nt_max, Nt_frozen, kbt, flag_restart, v_restart, theta_restart, mref_restart, ut_restart, vt_restart, params_diff, params_means, params_ener):
 
     np.random.seed(111)
-    kbt = 2.5 # kJ/mol
 
     ################################
     # Unpacking model parameters

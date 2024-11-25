@@ -49,7 +49,7 @@ for i in range(n_sim):
 
     # run BD
     t_start = timer()
-    traj_vert, traj_theta, traj_U, traj_V, traj_mref, traj_dir = run_bd_mt(nt, nt_skip, Nt_array, npf, Nt_max, Nt_frozen,
+    traj_vert, traj_theta, traj_U, traj_V, traj_mref, traj_dir = run_bd_mt(nt, nt_skip, Nt_array, npf, Nt_max, Nt_frozen, kbt,
                                                                            restart_flag, v_restart, theta_restart, mref_restart, ut_restart, vt_restart,
                                                                            params_diff, params_means, params_ener)
     t_end = timer()

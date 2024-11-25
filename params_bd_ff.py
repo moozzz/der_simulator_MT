@@ -34,6 +34,10 @@ Nt_max = int(np.max(Nt_array))
 # number of frozen tubulin monomers at the minus-end
 Nt_frozen = 1
 
+# Boltzmann constant and temperature
+# Assuming T ~= 300 K
+kbt = 2.5 # kJ/mol
+
 
 
 ###############################################
