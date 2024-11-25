@@ -59,14 +59,14 @@ Kalutskii, M., H. Grubmüller, V.A. Volkov and M. Igaev (2024). *Microtubule dyn
 
 ### How to run a single simulation:
 
-* do `./der_simulator_MT.py` to run 1 simulation with index 0 of the GDP-MT end of length 12 monomers
-  (6 dimers) and `Ulat`*0.0 lateral interactions for 20000 steps (200 ns; each step is 10 ps) sampled
-  every 2500 steps (25 ns)
+* Example: do `./der_simulator_MT.py` to run 1 simulation with index 0 of the GDP-MT end of length 12
+  monomers (6 dimers) and `Ulat`*0.0 lateral interactions for 20000 steps (200 ns; each step is 10 ps)
+  sampled every 2500 steps (25 ns)
 
 ### How to continue a single simulation:
 
-* set `restart_flag = '-r'` and `n_sim = 10` in `params_bd_run.py` to continue the above simulation from
-  the last frame in a chain of 10 cycles. The trajectory of each cycle is appended to the previous one.
+* Example: set `restart_flag = '-r'` and `n_sim = 10` in `params_bd_run.py` to continue the above simulation
+  from the last frame in a chain of 10 cycles. The trajectory of each cycle is appended to the previous one.
   Alternatively, delete the simulation directory and set `restart_flag = ''` to run a completely new
   simulation.
 
