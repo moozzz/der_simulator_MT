@@ -179,9 +179,9 @@ def attr_flat(par_epsilon_lat, R, R_unit, a_lat, R0_BS):
     return afl
 
 @njit(fastmath=True)
-def Flat(Nt_array, M1, M2, v, tang, npf, epsilon_lat_homo, epsilon_lat_seam, a_lat_homo, a_lat_seam, alpha):
+def Flat(Nt_array, M1, M2, v, tang, npf, epsilon_lat_homo, epsilon_lat_seam, a_lat_homo, a_lat_seam, alpha_lat):
     # joint repulsive + attractive lateral force
-    # alpha - scaling factor for lateral interactions
+    # alpha_lat - scaling factor for lateral interactions
     # epsilon_lat - full lateral energy per dimer (3 nodes)
     # R0_BS_homo - eq distance b/w binding sites for homotypic contacts
     # R0_BS_seam - eq distance b/w binding sites for seam contact
@@ -211,7 +211,7 @@ def Flat(Nt_array, M1, M2, v, tang, npf, epsilon_lat_homo, epsilon_lat_seam, a_l
             r = r1 - r2
             r_unit = r / norm(r)
 
-            fattr = attr_flat(alpha * epsilon_lat / 3.0, norm(r), r_unit, a_lat, R0_BS)
+            fattr = attr_flat(alpha_lat * epsilon_lat / 3.0, norm(r), r_unit, a_lat, R0_BS)
             frep =  rep_flat(v[p, i], v[(p+1) % npf, i], R0_COM_COM)
 
             Fl[p,           i] += -fattr - frep

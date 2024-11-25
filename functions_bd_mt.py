@@ -75,13 +75,13 @@ def unpack_params(params_diff, params_means, params_ener, Nt_max):
     epsilon_lat_seam = params_ener[14] # kJ/mol
     a_lat_homo = params_ener[15]       # 1/nm
     a_lat_seam = params_ener[16]       # 1/nm
-    alpha = params_ener[17]
+    alpha_lat = params_ener[17]
 
     return (dv2, sqrt_2_dv2, dth2, sqrt_2_dth2,
             ht, K1eq, K2eq, Mtwist_eq,
             Es, Ek1, Ek2, Et, Etb2,
             epsilon_long, a_long, mode_long,
-            epsilon_lat_homo, epsilon_lat_seam, a_lat_homo, a_lat_seam, alpha)
+            epsilon_lat_homo, epsilon_lat_seam, a_lat_homo, a_lat_seam, alpha_lat)
 
 @njit(fastmath=True)
 def init_start_conf(flag_restart, Nt_array, Nt_max, npf, ht,
@@ -167,7 +167,7 @@ def run_bd_mt(nt, nt_skip, Nt_array, npf, Nt_max, Nt_frozen, flag_restart, v_res
      ht, K1eq, K2eq, Mtwist_eq,
      Es, Ek1, Ek2, Et, Etb2,
      epsilon_long, a_long, mode_long,
-     epsilon_lat_homo, epsilon_lat_seam, a_lat_homo, a_lat_seam, alpha) = unpack_params(params_diff, params_means, params_ener, Nt_max)
+     epsilon_lat_homo, epsilon_lat_seam, a_lat_homo, a_lat_seam, alpha_lat) = unpack_params(params_diff, params_means, params_ener, Nt_max)
 
     ################################
     # Starting configuration
@@ -222,7 +222,7 @@ def run_bd_mt(nt, nt_skip, Nt_array, npf, Nt_max, Nt_frozen, flag_restart, v_res
         ################################
         # don't calculate lateral forces for a single PF
         if npf > 1:
-            flv = Flat(Nt_array, M1, M2, v, tang, npf, epsilon_lat_homo, epsilon_lat_seam, a_lat_homo, a_lat_seam, alpha)
+            flv = Flat(Nt_array, M1, M2, v, tang, npf, epsilon_lat_homo, epsilon_lat_seam, a_lat_homo, a_lat_seam, alpha_lat)
         else:
             flv = np.zeros((npf, Nt_max+1, 3))
 
