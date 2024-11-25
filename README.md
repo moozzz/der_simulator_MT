@@ -49,6 +49,8 @@ Kalutskii, M., H. Grubmüller, V.A. Volkov and M. Igaev (2024). *Microtubule dyn
 
 * `Nt_frozen` -- number of frozen tubulin monomers at the minus-end
 
+* `kbt` -- Boltzmann constant times temperature
+
 * `nuc_state` -- nucleotide state (`gtp` or `gdp`)
 
 * `mode_long` -- type of the longitudinal bond potential. 0.0 = harmonic (unbreakable),
