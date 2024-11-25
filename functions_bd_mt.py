@@ -85,6 +85,7 @@ def unpack_params(params_diff, params_means, params_ener, Nt_max):
 @njit(fastmath=True)
 def init_start_conf(flag_restart, Nt_array, Nt_max, npf, ht,
                     v_restart, theta_restart, ut_restart, vt_restart, mref_restart):
+    # hard-coded MT parameters
     R_MT = 12.0 # nm
 
     # initialize arrays
