@@ -61,7 +61,8 @@ Kalutskii, M., H. Grubmüller, V.A. Volkov and M. Igaev (2024). *Microtubule dyn
 
 * Example: do `./der_simulator_MT.py` to run 1 simulation with index 0 of the GDP-MT end of length 12
   monomers (6 dimers) and `Ulat`*0.0 lateral interactions for 20000 steps (200 ns; each step is 10 ps)
-  sampled every 2500 steps (25 ns)
+  sampled every 2500 steps (25 ns). Adjust `params_bd_ff.py` to select a different MT geometry,
+  nucleotide state and/or energy parameters.
 
 ### How to continue a single simulation:
 
