@@ -51,7 +51,10 @@ Kalutskii, M., H. Grubmüller, V.A. Volkov and M. Igaev (2024). *Microtubule dyn
 
 * `nuc_state` -- nucleotide state (`gtp` or `gdp`)
 
-* `alpha` -- scaling factor for the lateral interaction energy `Ulat`
+* `mode_long` -- type of the longitudinal bond potential. 0.0 = harmonic (unbreakable),
+                 1.0 = morse (breakable)
+
+* `alpha_lat` -- scaling factor for the lateral interaction energy `Ulat`
 
 * `params_diff` -- rotational and translational diffusion constants
 
