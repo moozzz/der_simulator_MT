@@ -47,6 +47,8 @@ Kalutskii, M., H. Grubmüller, V.A. Volkov and M. Igaev (2024). *Microtubule dyn
 
 * `Nt_max` -- length of the longest PF
 
+* `Nt_frozen` -- number of frozen tubulin monomers at the minus-end
+
 * `nuc_state` -- nucleotide state (`gtp` or `gdp`)
 
 * `alpha` -- scaling factor for the lateral interaction energy `Ulat`
