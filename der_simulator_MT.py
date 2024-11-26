@@ -19,13 +19,15 @@ from params_bd_ff import *
 # RUN BD AND WRITE FILES
 ###############################################
 
-folder_save = 'sim_mt_%s_%d_%.8f_%d'  % (nuc_state, Nt_max, chain)
 folder_files = ['traj_vert.npy', 'traj_theta.npy', 'traj_U.npy', 'traj_V.npy', 'traj_mref.npy', 'traj_dir.npy']
 
 for i in range(n_sim):
     # initialize new or restart old simulation
     if flag_restart == '' and not any(os.path.exists('%s/%s' % (folder_save, f)) for f in folder_files):
         print("\nStarting a new BD simulation...")
+
+        npf = len(Nt_array)
+        Nt_max = int(np.max(Nt_array))
 
         v_restart     = np.zeros((npf, Nt_max+1, 3))
         theta_restart = np.zeros((npf, Nt_max))
@@ -49,8 +51,8 @@ for i in range(n_sim):
 
     # run BD
     t_start = timer()
-    traj_vert, traj_theta, traj_U, traj_V, traj_mref, traj_dir = run_bd_mt(nt, nt_skip, Nt_array, npf, Nt_max, Nt_frozen, kbt,
-                                                                           flag_restart, v_restart, theta_restart, mref_restart, ut_restart, vt_restart,
+    traj_vert, traj_theta, traj_U, traj_V, traj_mref, traj_dir = run_bd_mt(nt, nt_skip, Nt_array, Nt_frozen, kbt,
+                                                                           flag_restart, v_restart, theta_restart, ut_restart, vt_restart, mref_restart,
                                                                            params_diff, params_means, params_ener)
     t_end = timer()
 

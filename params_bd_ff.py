@@ -3,14 +3,17 @@ import numpy as np
 
 
 
-###############################################
-# BD RUN AND MT GEOMETRY PARAMETERS
-###############################################
+###########################################################
+# BD RUN, MT AND OTHER PARAMETERS (FEEL FREE TO CHANGE!)
+###########################################################
 
 # simulation index
+# useful when running multiple copies in parallel
 chain = 0
 
 # number of restarts in a chain of simulations
+# useful for saving checkpoints when running
+# simulations on a cluster with a limited job time
 n_sim = 1
 
 # number of steps in a single simulation
@@ -22,30 +25,40 @@ nt_skip = 2500
 # restart flag (empty or '-r')
 flag_restart = ''
 
-# number of monomers in each PF
+# array with the number of tubulin monomers Nt in each PF (Nt/2 dimers)
 Nt_array = np.array([12, 10, 16, 10, 10, 10, 6, 18, 10, 8, 8, 6, 4, 10])
-
-# number of PFs
-npf = len(Nt_array)
-
-# maximum PF length in the MT
-Nt_max = int(np.max(Nt_array))
 
 # number of frozen tubulin monomers at the minus-end
 Nt_frozen = 1
 
 # Boltzmann constant and temperature
-# Assuming T ~= 300 K
+# assuming T ~= 300 K
 kbt = 2.5 # kJ/mol
-
-
-
-###############################################
-# BD FORCE FIELD PARAMETERS
-###############################################
 
 # nucleotide state ('gtp' or 'gdp')
 nuc_state = 'gdp'
+
+# type of longitudinal bond potentials
+# 0.0 = harmonic (unbreakable), 1.0 = morse (breakable)
+# if harmonic, 'alpha Es' and 'alpha ht' will be used (see below)
+mode_long = 1.0
+
+# scaling factor for longitudinal bond energies
+# only makes sense when mode_long = 1.0
+# otherwise it will be ignored
+alpha_long = 1.0
+
+# scaling factor for lateral bond energies
+alpha_lat = 1.0
+
+# trajectory folder name
+folder_save = 'sim_mt_%s_%d'  % (nuc_state, chain)
+
+
+
+###########################################################
+# FORCE FIELD PARAMETERS (CHANGE AT YOUR OWN RISK!)
+###########################################################
 
 # rotational and translational diffusion constants
 # implicitly setting dt = 10.0 ps
@@ -83,12 +96,13 @@ if nuc_state == 'gtp':
                               8276.75849097318,      #17 inter Etb2, kJ/mol*nm
                               24.0*2.5,              #18 epsilon_long, kJ/mol
                               3.650588936,           #19 a_long, shape, 1/nm
-                              1.0,                   #20 mode_long, 0 = harmonic, 1 = morse
-                              28.729752,             #21 epsilon_lat_homo, kJ/mol
-                              21.021939,             #22 epsilon_lat_seam, kJ/mol
-                              2.061726,              #23 a_lat_homo, shape, 1/nm
-                              1.528234,              #24 a_lat_seam, shape, 1/nm
-                              1.0                    #25 alpha_lat, scaling factor for lateral energies
+                              mode_long,             #20 0 = harmonic, 1 = morse
+                              alpha_long,            #21 scaling factor for longitudinal energies
+                              28.729752,             #22 epsilon_lat_homo, kJ/mol
+                              21.021939,             #23 epsilon_lat_seam, kJ/mol
+                              2.061726,              #24 a_lat_homo, shape, 1/nm
+                              1.528234,              #25 a_lat_seam, shape, 1/nm
+                              alpha_lat              #26 scaling factor for lateral energies
                             ])
 elif nuc_state == 'gdp':
     # NOTE: GDP
@@ -119,12 +133,13 @@ elif nuc_state == 'gdp':
                               9039.674533560048,     #17 inter Etb2, kJ/mol*nm
                               24.0*2.5,              #18 epsilon_long, kJ/mol
                               4.806408919,           #19 a_long, shape, 1/nm
-                              1.0,                   #20 mode_long, 0 = harmonic, 1 = morse
-                              42.853914,             #21 epsilon_lat_homo, kJ/mol
-                              25.857480,             #22 epsilon_lat_seam, kJ/mol
-                              2.164717,              #23 a_lat_homo, shape, 1/nm
-                              2.363691,              #24 a_lat_seam, shape, 1/nm
-                              1.0                    #25 alpha_lat, scaling factor for lateral energies
+                              mode_long,             #20 0 = harmonic, 1 = morse
+                              alpha_long,            #21 scaling factors for longitudinal energies
+                              42.853914,             #22 epsilon_lat_homo, kJ/mol
+                              25.857480,             #23 epsilon_lat_seam, kJ/mol
+                              2.164717,              #24 a_lat_homo, shape, 1/nm
+                              2.363691,              #25 a_lat_seam, shape, 1/nm
+                              alpha_lat              #26 scaling factor for lateral energies
                             ])
 else:
     print('\nNucleotide state can be either GTP or GDP!\n')

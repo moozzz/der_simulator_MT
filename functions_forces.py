@@ -18,7 +18,7 @@ from functions_pf import computedEdK
 ###############################################
 
 @njit(fastmath=True)
-def Fstretch(Nt, Nt_max, ed, tan, ht, Es, mode_long=0.0, epsilon=None, a=None):
+def Fstretch(Nt, Nt_max, ed, tan, ht, Es, epsilon_long, a_long, mode_long, alpha_long):
     Fstr = np.zeros((Nt_max+1, 3))
     Fs = np.zeros((Nt_max+1, 3))
 
@@ -29,7 +29,7 @@ def Fstretch(Nt, Nt_max, ed, tan, ht, Es, mode_long=0.0, epsilon=None, a=None):
 
         if mode_long == 1.0 and i % 2 == 0:
             # only for inter-dimer interfaces
-            Fstr[i] = 2.0 * epsilon * a * np.exp( -a * (ed_norms[i] - ht[i]) ) * ( 1.0 - np.exp( -a * (ed_norms[i] - ht[i]) ) ) * tan[i]
+            Fstr[i] = 2.0 * alpha_long * epsilon_long * a_long * np.exp( -a_long * (ed_norms[i] - ht[i]) ) * ( 1.0 - np.exp( -a_long * (ed_norms[i] - ht[i]) ) ) * tan[i]
 
     for i in range(1, Nt):
         Fs[i] = Fstr[i] - Fstr[i-1]

@@ -30,53 +30,25 @@ Kalutskii, M., H. Grubmüller, V.A. Volkov and M. Igaev (2024). *Microtubule dyn
 
 ### Parameters of the BD run:
 
-* `chain` -- simulation index (useful for labeling replicas when running multiple copies in parallel)
-
-* `n_sim` -- number of restarts in a chain of simulations (useful for saving checkpoints when running
-             running simulations on a cluster with a limited job time)
-
-* `nt` -- number of steps
-
-* `nt_skip` -- only save every `nt_skip`-th frame
-
-* `flag_restart` -- flag for restarting a simulation from the last frame (empty or `-r`)
-
-* `Nt_array` -- array with the number of tubulin monomers `Nt` in each PF (`Nt/2` dimers)
-
-* `npf` -- number of PFs
-
-* `Nt_max` -- length of the longest PF
-
-* `Nt_frozen` -- number of frozen tubulin monomers at the minus-end
-
-* `kbt` -- Boltzmann constant times temperature
-
-* `nuc_state` -- nucleotide state (`gtp` or `gdp`)
-
-* `params_diff` -- rotational and translational diffusion constants
-
-* `params_means` -- mean edge lengths, curvatures and twists derived directly from MD
-
-* `params_ener` -- stiffness and energy parameters optimized with Fuzzy PSO
+See the comments in `params_bd_ff.py` for further information.
 
 ### How to run a single simulation:
 
-* Example: do `./der_simulator_MT.py` to run 1 simulation with index 0 of the GDP-MT end of length 12
-  monomers (6 dimers) and `Ulat`*0.0 lateral interactions for 20000 steps (200 ns; each step is 10 ps)
-  sampled every 2500 steps (25 ns). Adjust `params_bd_ff.py` to select a different MT geometry, run times,
-  nucleotide state and/or energy parameters.
+* Example: do `./der_simulator_MT.py` to run 1 simulation with index 0 of the GDP-MT end for 20000 steps
+  (200 ns; each step is 10 ps) sampled every 2500 steps (25 ns). Adjust `params_bd_ff.py` to select a
+  different MT geometry, run times, nucleotide state and/or energy parameters.
 
 ### How to continue a single simulation:
 
 * Example: set `flag_restart = '-r'` and `n_sim = 10` in `params_bd_run.py` to continue the above simulation
   from the last frame in a chain of 10 cycles. The trajectory of each cycle is appended to the previous one.
-  Alternatively, delete the simulation directory and set `flag_restart = ''` to run a completely new
+  Alternatively, delete the simulation folder and set `flag_restart = ''` to run a completely new
   simulation.
 
 ### How to analyze the trajectory:
 
 * do `./convert_der2pdb_MT.py traj_vert.npy traj_dir.npy` to convert python `.npy` trajectories into
-  PDB files
+  PDB files.
 
 * use your favorite analysis tools such as `gromacs`, `MDAnalysis`, `VMD`, etc to analyze the PDB
   trajectories.

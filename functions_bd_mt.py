@@ -68,25 +68,27 @@ def unpack_params(params_diff, params_means, params_ener, Nt_max):
     epsilon_long = params_ener[10] # kJ/mol
     a_long = params_ener[11]       # 1/nm
     mode_long = params_ener[12]    # 0 = harmonic, 1 = morse
+    alpha_long = params_ener[13]
 
     # lateral bond parameters
-    epsilon_lat_homo = params_ener[13] # kJ/mol
-    epsilon_lat_seam = params_ener[14] # kJ/mol
-    a_lat_homo = params_ener[15]       # 1/nm
-    a_lat_seam = params_ener[16]       # 1/nm
-    alpha_lat = params_ener[17]
+    epsilon_lat_homo = params_ener[14] # kJ/mol
+    epsilon_lat_seam = params_ener[15] # kJ/mol
+    a_lat_homo = params_ener[16]       # 1/nm
+    a_lat_seam = params_ener[17]       # 1/nm
+    alpha_lat = params_ener[18]
 
     return (dv2, sqrt_2_dv2, dth2, sqrt_2_dth2,
             ht, K1eq, K2eq, Mtwist_eq,
             Es, Ek1, Ek2, Et, Etb2,
-            epsilon_long, a_long, mode_long,
+            epsilon_long, a_long, mode_long, alpha_long,
             epsilon_lat_homo, epsilon_lat_seam, a_lat_homo, a_lat_seam, alpha_lat)
 
 @njit(fastmath=True)
-def init_start_conf(flag_restart, Nt_array, Nt_max, npf, ht,
-                    v_restart, theta_restart, ut_restart, vt_restart, mref_restart):
+def init_start_conf(Nt_array, Nt_max, npf, ht,
+                    flag_restart, v_restart, theta_restart, ut_restart, vt_restart, mref_restart):
     # hard-coded MT parameters
     R_MT = 12.0 # nm
+    offset_pf = 0.8845 # nm
 
     # initialize arrays
     v      = np.zeros((npf, Nt_max+1, 3))
@@ -116,14 +118,14 @@ def init_start_conf(flag_restart, Nt_array, Nt_max, npf, ht,
         # locate PF positions on a circle
         init_pf_pos = np.zeros((npf, 2))
         for p in range(npf):
-            init_pf_pos[p, 0] = R_MT * np.cos(2.0 * np.pi * p / 14.0)
-            init_pf_pos[p, 1] = R_MT * np.sin(2.0 * np.pi * p / 14.0)
+            init_pf_pos[p, 0] = R_MT * np.cos(2.0 * np.pi * p / npf)
+            init_pf_pos[p, 1] = R_MT * np.sin(2.0 * np.pi * p / npf)
     
         # initialize node positions
         for p in range(npf):
             temp_pos = 0.0
             for i in range(Nt_array[p]+1):
-                v[p, i] = np.array([init_pf_pos[p, 0], init_pf_pos[p, 1], temp_pos - 0.8845 * p])
+                v[p, i] = np.array([init_pf_pos[p, 0], init_pf_pos[p, 1], temp_pos - offset_pf * p])
                 temp_pos = ht[i] + temp_pos
     
         # initialize MT geometry
@@ -155,9 +157,12 @@ def init_start_conf(flag_restart, Nt_array, Nt_max, npf, ht,
 # BROWNIAN DYNAMICS MODULE
 ###############################################
 @njit(fastmath=True)
-def run_bd_mt(nt, nt_skip, Nt_array, npf, Nt_max, Nt_frozen, kbt, flag_restart, v_restart, theta_restart, mref_restart, ut_restart, vt_restart, params_diff, params_means, params_ener):
+def run_bd_mt(nt, nt_skip, Nt_array, Nt_frozen, kbt, flag_restart, v_restart, theta_restart, ut_restart, vt_restart, mref_restart, params_diff, params_means, params_ener):
 
     np.random.seed(111)
+
+    npf = len(Nt_array)
+    Nt_max = int(np.max(Nt_array))
 
     ################################
     # Unpacking model parameters
@@ -165,15 +170,15 @@ def run_bd_mt(nt, nt_skip, Nt_array, npf, Nt_max, Nt_frozen, kbt, flag_restart, 
     (dv2, sqrt_2_dv2, dth2, sqrt_2_dth2,
      ht, K1eq, K2eq, Mtwist_eq,
      Es, Ek1, Ek2, Et, Etb2,
-     epsilon_long, a_long, mode_long,
+     epsilon_long, a_long, mode_long, alpha_long,
      epsilon_lat_homo, epsilon_lat_seam, a_lat_homo, a_lat_seam, alpha_lat) = unpack_params(params_diff, params_means, params_ener, Nt_max)
 
     ################################
     # Starting configuration
     ################################
     (v, theta, ut, vt, mref, ed,
-     tang, Mtwist, M1, M2, lv, kb) = init_start_conf(flag_restart, Nt_array, Nt_max, npf, ht,
-                                                     v_restart, theta_restart, ut_restart, vt_restart, mref_restart)
+     tang, Mtwist, M1, M2, lv, kb) = init_start_conf(Nt_array, Nt_max, npf, ht,
+                                                     flag_restart, v_restart, theta_restart, ut_restart, vt_restart, mref_restart)
 
     ################################
     # Output arrays
@@ -226,7 +231,7 @@ def run_bd_mt(nt, nt_skip, Nt_array, npf, Nt_max, Nt_frozen, kbt, flag_restart, 
             flv = np.zeros((npf, Nt_max+1, 3))
 
         for p in range(npf):
-            fs = Fstretch(Nt_array[p], Nt_max, ed[p], tang[p], ht, Es, mode_long, epsilon_long, a_long)
+            fs = Fstretch(Nt_array[p], Nt_max, ed[p], tang[p], ht, Es, epsilon_long, a_long, mode_long, alpha_long)
             fb = Fbend(Nt_array[p], Nt_max, M1[p], M2[p], kb[p], tang[p], ed[p], lv[p], K1eq, K2eq, Ek1, Ek2)
             ft = Ftwist(Nt_array[p], Nt_max, ed[p], Mtwist[p], kb[p], lv[p], Mtwist_eq, Et)
             ft_theta = Ftwist_theta(Nt_array[p], Nt_max, Mtwist[p], lv[p], Mtwist_eq, Et)
