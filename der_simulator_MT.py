@@ -19,7 +19,7 @@ from params_bd_ff import *
 # RUN BD AND WRITE FILES
 ###############################################
 
-folder_save = 'sim_mt_%s_%d_%.8f_%d'  % (nuc_state, Nt_max, alpha_lat, chain)
+folder_save = 'sim_mt_%s_%d_%.8f_%d'  % (nuc_state, Nt_max, chain)
 folder_files = ['traj_vert.npy', 'traj_theta.npy', 'traj_U.npy', 'traj_V.npy', 'traj_mref.npy', 'traj_dir.npy']
 
 for i in range(n_sim):
