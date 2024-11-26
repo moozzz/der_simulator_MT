@@ -28,7 +28,7 @@ print(Nt_array)
 fh = open('PDB_%s_%s.pdb' % (traj_vert[:-4], traj_dir[:-4]), 'w')
 for i in range(N_frames):
     atom_count = 1
-    fh.write('CRYST1    1.000    1.000    1.000  90.00  90.00  90.00 P 1           1\n')
+    fh.write('CRYST1  500.000  500.000  500.000  90.00  90.00  90.00 P 1           1\n')
     fh.write('MODEL   {:6d}\n'.format(i+1))
 
     for p in range(N_PF):
