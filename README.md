@@ -39,7 +39,7 @@ Kalutskii, M., H. Grubmüller, V.A. Volkov and M. Igaev (2024). *Microtubule dyn
 
 * `nt_skip` -- only save every `nt_skip`-th frame
 
-* `restart_flag` -- flag for restarting a simulation from the last frame (empty or `-r`)
+* `flag_restart` -- flag for restarting a simulation from the last frame (empty or `-r`)
 
 * `Nt_array` -- array with the number of tubulin monomers `Nt` in each PF (`Nt/2` dimers)
 
@@ -73,9 +73,9 @@ Kalutskii, M., H. Grubmüller, V.A. Volkov and M. Igaev (2024). *Microtubule dyn
 
 ### How to continue a single simulation:
 
-* Example: set `restart_flag = '-r'` and `n_sim = 10` in `params_bd_run.py` to continue the above simulation
+* Example: set `flag_restart = '-r'` and `n_sim = 10` in `params_bd_run.py` to continue the above simulation
   from the last frame in a chain of 10 cycles. The trajectory of each cycle is appended to the previous one.
-  Alternatively, delete the simulation directory and set `restart_flag = ''` to run a completely new
+  Alternatively, delete the simulation directory and set `flag_restart = ''` to run a completely new
   simulation.
 
 ### How to analyze the trajectory:
