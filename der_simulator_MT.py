@@ -24,7 +24,7 @@ folder_files = ['traj_vert.npy', 'traj_theta.npy', 'traj_U.npy', 'traj_V.npy', '
 
 for i in range(n_sim):
     # initialize new or restart old simulation
-    if restart_flag == '' and not any(os.path.exists('%s/%s' % (folder_save, f)) for f in folder_files):
+    if flag_restart == '' and not any(os.path.exists('%s/%s' % (folder_save, f)) for f in folder_files):
         print("\nStarting a new BD simulation...")
 
         v_restart     = np.zeros((npf, Nt_max+1, 3))
@@ -34,7 +34,7 @@ for i in range(n_sim):
         mref_restart  = np.zeros((npf, Nt_max))
 
         os.makedirs(folder_save)
-    elif restart_flag == '-r' and all(os.path.exists('%s/%s' % (folder_save, f)) for f in folder_files):
+    elif flag_restart == '-r' and all(os.path.exists('%s/%s' % (folder_save, f)) for f in folder_files):
         print("\nRestarting from a previous BD simulation...")
 
         v_restart     = np.load('%s/%s' % (folder_save, folder_files[0]))[-1]
@@ -50,7 +50,7 @@ for i in range(n_sim):
     # run BD
     t_start = timer()
     traj_vert, traj_theta, traj_U, traj_V, traj_mref, traj_dir = run_bd_mt(nt, nt_skip, Nt_array, npf, Nt_max, Nt_frozen, kbt,
-                                                                           restart_flag, v_restart, theta_restart, mref_restart, ut_restart, vt_restart,
+                                                                           flag_restart, v_restart, theta_restart, mref_restart, ut_restart, vt_restart,
                                                                            params_diff, params_means, params_ener)
     t_end = timer()
 
@@ -66,6 +66,6 @@ for i in range(n_sim):
         with NpyAppendArray('%s/%s' % (folder_save, f)) as file:
             file.append(traj_x)
 
-    if restart_flag == '':
-        restart_flag = '-r'
+    if flag_restart == '':
+        flag_restart = '-r'
 

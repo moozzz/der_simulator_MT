@@ -20,7 +20,7 @@ nt = 20000
 nt_skip = 2500
 
 # restart flag (empty or '-r')
-restart_flag = ''
+flag_restart = ''
 
 # number of monomers in each PF
 Nt_array = np.array([12, 10, 16, 10, 10, 10, 6, 18, 10, 8, 8, 6, 4, 10])
