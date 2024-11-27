@@ -52,7 +52,7 @@ alpha_long = 1.0
 alpha_lat = 1.0
 
 # trajectory folder name
-folder_save = 'sim_mt_%s_%d'  % (nuc_state, chain)
+folder_save = 'sim_mt_%s_%d' % (nuc_state, chain)
 
 
 
