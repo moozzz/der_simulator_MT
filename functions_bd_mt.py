@@ -197,6 +197,7 @@ def run_bd_mt(nt, nt_skip, Nt_array, Nt_frozen, kbt, flag_restart, v_restart, th
     # Main time cycle
     ################################
     frame = 0
+    nt = nt if flag_restart == '' else nt + 1
     for ts in range(nt):
         ################################
         # Update PF
@@ -265,17 +266,17 @@ def run_bd_mt(nt, nt_skip, Nt_array, Nt_frozen, kbt, flag_restart, v_restart, th
         ################################
         # Write trajectory
         ################################
-        if ts % nt_skip == 0:
+        if ts % nt_skip == 0 and (flag_restart == '' or ts != 0):
             for p in range(npf):
                 for i in range(Nt_array[p]):
                     traj_dir[frame, p, i] = v[p, i] + (v[p, i+1] - v[p, i]) / 2.0 + M1[p, i] * 2.0
-            
+        
             traj_v[frame] = v
             traj_theta[frame] = theta
             traj_U[frame] = ut
             traj_V[frame] = vt
             traj_mref[frame] = mref
-            
+        
             frame += 1
 
     return traj_v, traj_theta, traj_U, traj_V, traj_mref, traj_dir
