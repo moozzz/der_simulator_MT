@@ -51,6 +51,8 @@ alpha_long = 1.0
 # scaling factor for lateral bond energies
 alpha_lat = 1.0
 
+
+
 # trajectory folder name
 folder_save = 'sim_mt_%s_%d' % (nuc_state, chain)
 
