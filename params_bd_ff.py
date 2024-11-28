@@ -45,10 +45,10 @@ nuc_state = 'gdp'
 # type of longitudinal bond potentials
 # 0.0 = harmonic (unbreakable), 1.0 = morse (breakable)
 # if harmonic, 'alpha Es' and 'alpha ht' will be used (see below)
-mode_long = 1.0
+mode_long_bond = 1.0
 
 # scaling factor for longitudinal bond energies
-# only makes sense when mode_long = 1.0
+# only makes sense when mode_long_bond = 1.0
 # otherwise it will be ignored
 alpha_long = 1.0
 
@@ -104,7 +104,7 @@ if nuc_state == 'gtp':
                               8276.75849097318,      #17 inter Etb2, kJ/mol*nm
                               24.0*2.5,              #18 epsilon_long, kJ/mol
                               3.650588936,           #19 a_long, shape, 1/nm
-                              mode_long,             #20 0 = harmonic, 1 = morse
+                              mode_long_bond,             #20 0 = harmonic, 1 = morse
                               alpha_long,            #21 scaling factor for longitudinal energies
                               28.729752,             #22 epsilon_lat_homo, kJ/mol
                               21.021939,             #23 epsilon_lat_seam, kJ/mol
@@ -141,7 +141,7 @@ elif nuc_state == 'gdp':
                               9039.674533560048,     #17 inter Etb2, kJ/mol*nm
                               24.0*2.5,              #18 epsilon_long, kJ/mol
                               4.806408919,           #19 a_long, shape, 1/nm
-                              mode_long,             #20 0 = harmonic, 1 = morse
+                              mode_long_bond,             #20 0 = harmonic, 1 = morse
                               alpha_long,            #21 scaling factors for longitudinal energies
                               42.853914,             #22 epsilon_lat_homo, kJ/mol
                               25.857480,             #23 epsilon_lat_seam, kJ/mol
