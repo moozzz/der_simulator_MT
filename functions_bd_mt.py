@@ -157,9 +157,10 @@ def init_start_conf(Nt_array, Nt_max, npf, ht,
 # BROWNIAN DYNAMICS MODULE
 ###############################################
 @njit(fastmath=True)
-def run_bd_mt(nt, nt_skip, Nt_array, Nt_frozen, kbt, flag_restart, v_restart, theta_restart, ut_restart, vt_restart, mref_restart, params_diff, params_means, params_ener):
+def run_bd_mt(nt, nt_skip, Nt_array, Nt_frozen, kbt, flag_restart, v_restart, theta_restart, ut_restart, vt_restart, mref_restart, params_diff, params_means, params_ener, random_seed):
 
-    np.random.seed(111)
+    if random_seed != 0:
+        np.random.seed(random_seed)
 
     npf = len(Nt_array)
     Nt_max = int(np.max(Nt_array))

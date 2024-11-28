@@ -7,6 +7,10 @@ import numpy as np
 # BD RUN, MT AND OTHER PARAMETERS (FEEL FREE TO CHANGE!)
 ###########################################################
 
+# numpy rng seed for the main time cycle
+# 0 = seed assigned automatically, any integer = seed assigned manually
+random_seed = 111
+
 # simulation index
 # useful when running multiple copies in parallel
 chain = 0
