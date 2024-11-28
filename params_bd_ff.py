@@ -50,10 +50,10 @@ mode_long_bond = 1.0
 # scaling factor for longitudinal bond energies
 # only makes sense when mode_long_bond = 1.0
 # otherwise it will be ignored
-alpha_long = 1.0
+alpha_long_bond = 1.0
 
 # scaling factor for lateral bond energies
-alpha_lat = 1.0
+alpha_lat_bond = 1.0
 
 
 
@@ -102,15 +102,15 @@ if nuc_state == 'gtp':
                               7841.670229500417,     #15 inter Et, kJ/mol*nm
                               8434.290705567179,     #16 intra Etb2, kJ/mol*nm
                               8276.75849097318,      #17 inter Etb2, kJ/mol*nm
-                              24.0*2.5,              #18 epsilon_long, kJ/mol
-                              3.650588936,           #19 a_long, shape, 1/nm
+                              24.0*2.5,              #18 epsilon_long_bond, kJ/mol
+                              3.650588936,           #19 a_long_bond, shape, 1/nm
                               mode_long_bond,        #20 0 = harmonic, 1 = morse
-                              alpha_long,            #21 scaling factor for longitudinal energies
-                              28.729752,             #22 epsilon_lat_homo, kJ/mol
-                              21.021939,             #23 epsilon_lat_seam, kJ/mol
-                              2.061726,              #24 a_lat_homo, shape, 1/nm
-                              1.528234,              #25 a_lat_seam, shape, 1/nm
-                              alpha_lat              #26 scaling factor for lateral energies
+                              alpha_long_bond,       #21 scaling factor for longitudinal energies
+                              28.729752,             #22 epsilon_lat_bond_homo, kJ/mol
+                              21.021939,             #23 epsilon_lat_bond_seam, kJ/mol
+                              2.061726,              #24 a_lat_bond_homo, shape, 1/nm
+                              1.528234,              #25 a_lat_bond_seam, shape, 1/nm
+                              alpha_lat_bond         #26 scaling factor for lateral energies
                             ])
 elif nuc_state == 'gdp':
     # NOTE: GDP
@@ -139,15 +139,15 @@ elif nuc_state == 'gdp':
                               12783.867349750595,    #15 inter Et, kJ/mol*nm
                               9665.777748438924,     #16 intra Etb2, kJ/mol*nm
                               9039.674533560048,     #17 inter Etb2, kJ/mol*nm
-                              24.0*2.5,              #18 epsilon_long, kJ/mol
-                              4.806408919,           #19 a_long, shape, 1/nm
+                              24.0*2.5,              #18 epsilon_long_bond, kJ/mol
+                              4.806408919,           #19 a_long_bond, shape, 1/nm
                               mode_long_bond,        #20 0 = harmonic, 1 = morse
-                              alpha_long,            #21 scaling factors for longitudinal energies
-                              42.853914,             #22 epsilon_lat_homo, kJ/mol
-                              25.857480,             #23 epsilon_lat_seam, kJ/mol
-                              2.164717,              #24 a_lat_homo, shape, 1/nm
-                              2.363691,              #25 a_lat_seam, shape, 1/nm
-                              alpha_lat              #26 scaling factor for lateral energies
+                              alpha_long_bond,       #21 scaling factors for longitudinal energies
+                              42.853914,             #22 epsilon_lat_bond_homo, kJ/mol
+                              25.857480,             #23 epsilon_lat_bond_seam, kJ/mol
+                              2.164717,              #24 a_lat_bond_homo, shape, 1/nm
+                              2.363691,              #25 a_lat_bond_seam, shape, 1/nm
+                              alpha_lat_bond         #26 scaling factor for lateral energies
                             ])
 else:
     print('\nNucleotide state can be either GTP or GDP!\n')

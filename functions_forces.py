@@ -18,7 +18,7 @@ from functions_pf import computedEdK
 ###############################################
 
 @njit(fastmath=True)
-def Fstretch(Nt, Nt_max, ed, tan, ht, Es, epsilon_long, a_long, mode_long_bond, alpha_long):
+def Fstretch(Nt, Nt_max, ed, tan, ht, Es, epsilon_long_bond, a_long_bond, mode_long_bond, alpha_long_bond):
     Fstr = np.zeros((Nt_max+1, 3))
     Fs = np.zeros((Nt_max+1, 3))
 
@@ -29,7 +29,7 @@ def Fstretch(Nt, Nt_max, ed, tan, ht, Es, epsilon_long, a_long, mode_long_bond, 
 
         if mode_long_bond == 1.0 and i % 2 == 0:
             # only for inter-dimer interfaces
-            Fstr[i] = 2.0 * alpha_long * epsilon_long * a_long * np.exp( -a_long * (ed_norms[i] - ht[i]) ) * ( 1.0 - np.exp( -a_long * (ed_norms[i] - ht[i]) ) ) * tan[i]
+            Fstr[i] = 2.0 * alpha_long_bond * epsilon_long_bond * a_long_bond * np.exp( -a_long_bond * (ed_norms[i] - ht[i]) ) * ( 1.0 - np.exp( -a_long_bond * (ed_norms[i] - ht[i]) ) ) * tan[i]
 
     for i in range(1, Nt):
         Fs[i] = Fstr[i] - Fstr[i-1]
@@ -166,23 +166,23 @@ def rep_flat(v, v1, R0_COM_COM):
     return rfl
 
 @njit(fastmath=True)
-def attr_flat(par_epsilon_lat, R, R_unit, a_lat, R0_BS):
+def attr_flat(par_epsilon_lat_bond, R, R_unit, a_lat_bond, R0_BS):
     # attractive lateral force from Morse
-    # par_epsilon_lat - lateral energy per node
+    # par_epsilon_lat_bond - lateral energy per node
     # R0_BS - eq distance b/w binding sites
 
     if R >= R0_BS:
-        afl =  2.0 * par_epsilon_lat * a_lat * np.exp( -a_lat * (R - R0_BS) ) * (1.0 - np.exp( -a_lat * (R - R0_BS) )) * R_unit
+        afl =  2.0 * par_epsilon_lat_bond * a_lat_bond * np.exp( -a_lat_bond * (R - R0_BS) ) * (1.0 - np.exp( -a_lat_bond * (R - R0_BS) )) * R_unit
     else:
         afl = np.zeros(3)
     
     return afl
 
 @njit(fastmath=True)
-def Flat(Nt_array, M1, M2, v, tang, npf, epsilon_lat_homo, epsilon_lat_seam, a_lat_homo, a_lat_seam, alpha_lat):
+def Flat(Nt_array, M1, M2, v, tang, npf, epsilon_lat_bond_homo, epsilon_lat_bond_seam, a_lat_bond_homo, a_lat_bond_seam, alpha_lat_bond):
     # joint repulsive + attractive lateral force
-    # alpha_lat - scaling factor for lateral interactions
-    # epsilon_lat - full lateral energy per dimer (3 nodes)
+    # alpha_lat_bond - scaling factor for lateral interactions
+    # epsilon_lat_bond - full lateral energy per dimer (3 nodes)
     # R0_BS_homo - eq distance b/w binding sites for homotypic contacts
     # R0_BS_seam - eq distance b/w binding sites for seam contact
 
@@ -198,8 +198,8 @@ def Flat(Nt_array, M1, M2, v, tang, npf, epsilon_lat_homo, epsilon_lat_seam, a_l
     for p in range(npf):
         seam = (p == npf-1)
         R0_BS = R0_BS_seam if seam else R0_BS_homo
-        epsilon_lat = epsilon_lat_seam if seam else epsilon_lat_homo
-        a_lat = a_lat_seam if seam else a_lat_homo
+        epsilon_lat_bond = epsilon_lat_bond_seam if seam else epsilon_lat_bond_homo
+        a_lat_bond = a_lat_bond_seam if seam else a_lat_bond_homo
 
         for i in range(1, Nt_array[p]+1):
             rr1 = get_coord(R1, M1[p,           i-1], M2[p,           i-1], tang[p,           i-1])
@@ -211,7 +211,7 @@ def Flat(Nt_array, M1, M2, v, tang, npf, epsilon_lat_homo, epsilon_lat_seam, a_l
             r = r1 - r2
             r_unit = r / norm(r)
 
-            fattr = attr_flat(alpha_lat * epsilon_lat / 3.0, norm(r), r_unit, a_lat, R0_BS)
+            fattr = attr_flat(alpha_lat_bond * epsilon_lat_bond / 3.0, norm(r), r_unit, a_lat_bond, R0_BS)
             frep =  rep_flat(v[p, i], v[(p+1) % npf, i], R0_COM_COM)
 
             Fl[p,           i] += -fattr - frep

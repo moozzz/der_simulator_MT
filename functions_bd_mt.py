@@ -65,23 +65,23 @@ def unpack_params(params_diff, params_means, params_ener, Nt_max):
     Etb2 = fill_params(params_ener[8], params_ener[9], Nt_max) # kJ/mol*nm
 
     # longitudinal bond parameters
-    epsilon_long = params_ener[10] # kJ/mol
-    a_long = params_ener[11]       # 1/nm
+    epsilon_long_bond = params_ener[10] # kJ/mol
+    a_long_bond = params_ener[11]       # 1/nm
     mode_long_bond = params_ener[12]    # 0 = harmonic, 1 = morse
-    alpha_long = params_ener[13]
+    alpha_long_bond = params_ener[13]
 
     # lateral bond parameters
-    epsilon_lat_homo = params_ener[14] # kJ/mol
-    epsilon_lat_seam = params_ener[15] # kJ/mol
-    a_lat_homo = params_ener[16]       # 1/nm
-    a_lat_seam = params_ener[17]       # 1/nm
-    alpha_lat = params_ener[18]
+    epsilon_lat_bond_homo = params_ener[14] # kJ/mol
+    epsilon_lat_bond_seam = params_ener[15] # kJ/mol
+    a_lat_bond_homo = params_ener[16]       # 1/nm
+    a_lat_bond_seam = params_ener[17]       # 1/nm
+    alpha_lat_bond = params_ener[18]
 
     return (dv2, sqrt_2_dv2, dth2, sqrt_2_dth2,
             ht, K1eq, K2eq, Mtwist_eq,
             Es, Ek1, Ek2, Et, Etb2,
-            epsilon_long, a_long, mode_long_bond, alpha_long,
-            epsilon_lat_homo, epsilon_lat_seam, a_lat_homo, a_lat_seam, alpha_lat)
+            epsilon_long_bond, a_long_bond, mode_long_bond, alpha_long_bond,
+            epsilon_lat_bond_homo, epsilon_lat_bond_seam, a_lat_bond_homo, a_lat_bond_seam, alpha_lat_bond)
 
 @njit(fastmath=True)
 def init_start_conf(Nt_array, Nt_max, npf, ht,
@@ -171,8 +171,8 @@ def run_bd_mt(nt, nt_skip, Nt_array, Nt_frozen, kbt, flag_restart, v_restart, th
     (dv2, sqrt_2_dv2, dth2, sqrt_2_dth2,
      ht, K1eq, K2eq, Mtwist_eq,
      Es, Ek1, Ek2, Et, Etb2,
-     epsilon_long, a_long, mode_long_bond, alpha_long,
-     epsilon_lat_homo, epsilon_lat_seam, a_lat_homo, a_lat_seam, alpha_lat) = unpack_params(params_diff, params_means, params_ener, Nt_max)
+     epsilon_long_bond, a_long_bond, mode_long_bond, alpha_long_bond,
+     epsilon_lat_bond_homo, epsilon_lat_bond_seam, a_lat_bond_homo, a_lat_bond_seam, alpha_lat_bond) = unpack_params(params_diff, params_means, params_ener, Nt_max)
 
     ################################
     # Starting configuration
@@ -228,12 +228,12 @@ def run_bd_mt(nt, nt_skip, Nt_array, Nt_frozen, kbt, flag_restart, v_restart, th
         ################################
         # don't calculate lateral forces for a single PF
         if npf > 1:
-            flv = Flat(Nt_array, M1, M2, v, tang, npf, epsilon_lat_homo, epsilon_lat_seam, a_lat_homo, a_lat_seam, alpha_lat)
+            flv = Flat(Nt_array, M1, M2, v, tang, npf, epsilon_lat_bond_homo, epsilon_lat_bond_seam, a_lat_bond_homo, a_lat_bond_seam, alpha_lat_bond)
         else:
             flv = np.zeros((npf, Nt_max+1, 3))
 
         for p in range(npf):
-            fs = Fstretch(Nt_array[p], Nt_max, ed[p], tang[p], ht, Es, epsilon_long, a_long, mode_long_bond, alpha_long)
+            fs = Fstretch(Nt_array[p], Nt_max, ed[p], tang[p], ht, Es, epsilon_long_bond, a_long_bond, mode_long_bond, alpha_long_bond)
             fb = Fbend(Nt_array[p], Nt_max, M1[p], M2[p], kb[p], tang[p], ed[p], lv[p], K1eq, K2eq, Ek1, Ek2)
             ft = Ftwist(Nt_array[p], Nt_max, ed[p], Mtwist[p], kb[p], lv[p], Mtwist_eq, Et)
             ft_theta = Ftwist_theta(Nt_array[p], Nt_max, Mtwist[p], lv[p], Mtwist_eq, Et)
