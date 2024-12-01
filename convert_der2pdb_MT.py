@@ -51,12 +51,12 @@ for i in range(N_frames):
             atom_count += 1
 
         for j in range(Nt_array[p]):
-            fh.write("{:6s}{:5d} {:^4s}{:1s}{:3s} {:1s}{:4d}{:1s}   {:8.3f}{:8.3f}{:8.3f}{:6.2f}{:6.2f}          {:>2s}{:2s}\n".format('ATOM', atom_count+j, 'N',
+            fh.write("{:6s}{:5d} {:^4s}{:1s}{:3s} {:1s}{:4d}{:1s}   {:8.3f}{:8.3f}{:8.3f}{:6.2f}{:6.2f}          {:>2s}{:2s}\n".format('ATOM', atom_count+j, 'H ',
                                                                                                                                        ' ', 'MET', 'D', 1, ' ',
                                                                                                                                        RD[i, p, j, 0] + 250.0,
                                                                                                                                        RD[i, p, j, 1] + 250.0,
                                                                                                                                        RD[i, p, j, 2] + 250.0,
-                                                                                                                                       1.00, 0.00, 'N', ''))
+                                                                                                                                       1.00, 0.00, 'H', ''))
 
     fh.write('ENDMDL\n')
 fh.close()
