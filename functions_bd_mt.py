@@ -43,7 +43,10 @@ def fill_params(v1, v2, Nt):
     return params
 
 @njit(fastmath=True)
-def unpack_params(params_diff, params_means, params_ener, Nt_max):
+def unpack_params(params_diff, params_means, params_ener, Nt_array):
+
+    Nt_max = int(np.max(Nt_array))
+
     # diffision coefficients
     dv2 = params_diff[0]              # nm^2
     sqrt_2_dv2 = np.sqrt(2.0 * dv2)   # nm
@@ -84,8 +87,12 @@ def unpack_params(params_diff, params_means, params_ener, Nt_max):
             epsilon_lat_bond_homo, epsilon_lat_bond_seam, a_lat_bond_homo, a_lat_bond_seam, alpha_lat_bond)
 
 @njit(fastmath=True)
-def init_start_conf(Nt_array, Nt_max, npf, ht,
+def init_start_conf(Nt_array, ht,
                     flag_restart, v_restart, theta_restart, ut_restart, vt_restart, mref_restart):
+
+    npf = len(Nt_array)
+    Nt_max = int(np.max(Nt_array))
+
     # hard-coded MT parameters
     R_MT = 12.0 # nm
     offset_pf = 0.8845 # nm
@@ -172,13 +179,13 @@ def run_bd_mt(nt, nt_skip, Nt_array, Nt_frozen, kbt, flag_restart, v_restart, th
      ht, K1eq, K2eq, Mtwist_eq,
      Es, Ek1, Ek2, Et, Etb2,
      epsilon_long_bond, a_long_bond, mode_long_bond, alpha_long_bond,
-     epsilon_lat_bond_homo, epsilon_lat_bond_seam, a_lat_bond_homo, a_lat_bond_seam, alpha_lat_bond) = unpack_params(params_diff, params_means, params_ener, Nt_max)
+     epsilon_lat_bond_homo, epsilon_lat_bond_seam, a_lat_bond_homo, a_lat_bond_seam, alpha_lat_bond) = unpack_params(params_diff, params_means, params_ener, Nt_array)
 
     ################################
     # Starting configuration
     ################################
     (v, theta, ut, vt, mref, ed,
-     tang, Mtwist, M1, M2, lv, kb) = init_start_conf(Nt_array, Nt_max, npf, ht,
+     tang, Mtwist, M1, M2, lv, kb) = init_start_conf(Nt_array, ht,
                                                      flag_restart, v_restart, theta_restart, ut_restart, vt_restart, mref_restart)
 
     ################################
@@ -228,7 +235,7 @@ def run_bd_mt(nt, nt_skip, Nt_array, Nt_frozen, kbt, flag_restart, v_restart, th
         ################################
         # don't calculate lateral forces for a single PF
         if npf > 1:
-            flv = Flat(Nt_array, M1, M2, v, tang, npf, epsilon_lat_bond_homo, epsilon_lat_bond_seam, a_lat_bond_homo, a_lat_bond_seam, alpha_lat_bond)
+            flv = Flat(Nt_array, M1, M2, v, tang, epsilon_lat_bond_homo, epsilon_lat_bond_seam, a_lat_bond_homo, a_lat_bond_seam, alpha_lat_bond)
         else:
             flv = np.zeros((npf, Nt_max+1, 3))
 

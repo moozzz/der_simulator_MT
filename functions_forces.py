@@ -179,14 +179,16 @@ def attr_flat(par_epsilon_lat_bond, R, R_unit, a_lat_bond, R0_BS):
     return afl
 
 @njit(fastmath=True)
-def Flat(Nt_array, M1, M2, v, tang, npf, epsilon_lat_bond_homo, epsilon_lat_bond_seam, a_lat_bond_homo, a_lat_bond_seam, alpha_lat_bond):
+def Flat(Nt_array, M1, M2, v, tang, epsilon_lat_bond_homo, epsilon_lat_bond_seam, a_lat_bond_homo, a_lat_bond_seam, alpha_lat_bond):
     # joint repulsive + attractive lateral force
     # alpha_lat_bond - scaling factor for lateral interactions
     # epsilon_lat_bond - full lateral energy per dimer (3 nodes)
     # R0_BS_homo - eq distance b/w binding sites for homotypic contacts
     # R0_BS_seam - eq distance b/w binding sites for seam contact
 
+    npf = len(Nt_array)
     Nt_max = int(np.max(Nt_array))
+
     Fl = np.zeros((npf, Nt_max+1, 3))
 
     R0_COM_COM = 5.340502 # nm, eq com-com distance b/w neighbor monomers
