@@ -3,9 +3,13 @@ import numpy as np
 
 
 
-###########################################################
-# BD RUN, MT AND OTHER PARAMETERS (FEEL FREE TO CHANGE!)
-###########################################################
+#################################################################
+# BD RUN PARAMETERS (FEEL FREE TO CHANGE!)
+#################################################################
+
+# Boltzmann constant and temperature
+# assuming T ~= 300 K
+kbt = 2.5 # kJ/mol
 
 # numpy rng seed for the main time cycle
 # 0 = seed assigned automatically, any integer = seed assigned manually
@@ -29,15 +33,22 @@ nt_skip = 2500
 # restart flag (empty or '-r')
 flag_restart = ''
 
+# trajectory folder name
+folder_save = 'sim_mt_%d' % chain
+
+
+
+
+
+#################################################################
+# MT PARAMETERS (FEEL FREE TO CHANGE!)
+#################################################################
+
 # array with the number of tubulin monomers Nt in each PF (Nt/2 dimers)
 Nt_array = np.array([12, 10, 16, 10, 10, 10, 6, 18, 10, 8, 8, 6, 4, 10])
 
 # number of frozen tubulin monomers at the minus-end
 Nt_frozen = 1
-
-# Boltzmann constant and temperature
-# assuming T ~= 300 K
-kbt = 2.5 # kJ/mol
 
 # nucleotide state ('gtp' or 'gdp')
 nuc_state = 'gdp'
@@ -59,14 +70,9 @@ alpha_lat_bond = 1.0
 
 
 
-# trajectory folder name
-folder_save = 'sim_mt_%s_%d' % (nuc_state, chain)
-
-
-
-###########################################################
-# FORCE FIELD PARAMETERS (CHANGE AT YOUR OWN RISK!)
-###########################################################
+#################################################################
+# MT FORCE FIELD PARAMETERS (CHANGE AT YOUR OWN RISK!)
+#################################################################
 
 # rotational and translational diffusion constants
 # implicitly setting dt = 10.0 ps
