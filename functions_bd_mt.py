@@ -43,7 +43,7 @@ def fill_params(v1, v2, Nt):
     return params
 
 @njit(fastmath=True)
-def unpack_params(params_diff, params_means, params_ener, Nt_array):
+def unpack_params(Nt_array, params_diff, params_means, params_ener):
 
     Nt_max = int(np.max(Nt_array))
 
@@ -179,7 +179,7 @@ def run_bd_mt(nt, nt_skip, Nt_array, Nt_frozen, kbt, flag_restart, v_restart, th
      ht, K1eq, K2eq, Mtwist_eq,
      Es, Ek1, Ek2, Et, Etb2,
      epsilon_long_bond, a_long_bond, mode_long_bond, alpha_long_bond,
-     epsilon_lat_bond_homo, epsilon_lat_bond_seam, a_lat_bond_homo, a_lat_bond_seam, alpha_lat_bond) = unpack_params(params_diff, params_means, params_ener, Nt_array)
+     epsilon_lat_bond_homo, epsilon_lat_bond_seam, a_lat_bond_homo, a_lat_bond_seam, alpha_lat_bond) = unpack_params(Nt_array, params_diff, params_means, params_ener)
 
     ################################
     # Starting configuration
