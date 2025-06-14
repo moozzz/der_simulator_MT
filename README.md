@@ -51,9 +51,9 @@ See the comments in `params_bd_ff.py` for further information and default parame
 
 ### How to analyze the trajectory:
 
-* do `./convert_der2pdb_MT.py traj_vert.npy traj_dir.npy` to convert python `.npy` trajectories into
+* Do `./convert_der2pdb_MT.py traj_vert.npy traj_dir.npy` to convert python `.npy` trajectories into
   PDB files.
 
-* use your favorite analysis tools such as `gromacs`, `MDAnalysis`, `VMD`, etc to analyze the PDB
+* Use your favorite analysis tools such as `gromacs`, `MDAnalysis`, `VMD`, etc to analyze the PDB
   trajectories.
 
