@@ -2,7 +2,7 @@
 
 ### Please cite the following article when using the code:
 
-Kalutskii, M., H. Grubmüller, V.A. Volkov and M. Igaev (2025). *Microtubule dynamics are defined by conformations and stability of clustered protofilaments*. [https://doi.org/10.1073/pnas.2424263122](PNAS 122(22): e2424263122)
+Kalutskii, M., H. Grubmüller, V.A. Volkov and M. Igaev (2025). *Microtubule dynamics are defined by conformations and stability of clustered protofilaments*. [https://doi.org/10.1073/pnas.2424263122](AAA)
 
 <div align="center">
   <img src="mt_movie.gif">
