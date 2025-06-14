@@ -34,7 +34,7 @@ Kalutskii, M., H. Grubmüller, V.A. Volkov and M. Igaev (2025). *Microtubule dyn
 
 ### Parameters of the BD run:
 
-See the comments in `params_bd_ff.py` for further information.
+See the comments in `params_bd_ff.py` for further information and default parameters.
 
 ### How to run a single simulation:
 
