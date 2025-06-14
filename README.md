@@ -4,7 +4,9 @@
 
 Kalutskii, M., H. Grubmüller, V.A. Volkov and M. Igaev (2025). *Microtubule dynamics are defined by conformations and stability of clustered protofilaments*. PNAS 122(22): e2424263122 [https://doi.org/10.1073/pnas.2424263122](https://doi.org/10.1073/pnas.2424263122)
 
-<img src="mt_movie.gif" width="600">
+<div align="center">
+  <img src="mt_movie.gif">
+</div>
 
 ### Content:
 
