@@ -30,7 +30,7 @@ Kalutskii, M., H. Grubmüller, V.A. Volkov and M. Igaev (2025). *Microtubule dyn
 
 * `numba>=0.6`
 
-* `npy-append-array>=0.9` ([link](https://github.com/xor2k/npy-append-array))
+* `npy-append-array>=0.9` ([xor2k/npy-append-array](https://github.com/xor2k/npy-append-array))
 
 ### Parameters of the BD run:
 
