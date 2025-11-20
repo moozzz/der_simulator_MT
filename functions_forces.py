@@ -19,119 +19,132 @@ from functions_pf import computedUdK
 ###############################################
 
 @njit(fastmath=True)
-def Fstretch(Nt, Nt_max, ed, tan, ht, Es, epsilon_long_bond, a_long_bond, mode_long_bond, alpha_long_bond):
-    Fstr = np.zeros((Nt_max+1, 3))
+def Fstretch(Nt, Nt_max, ed, tang, ht, Es, epsilon_long_bond, a_long_bond, mode_long_bond, alpha_long_bond):
     Fs = np.zeros((Nt_max+1, 3))
+    dUsde = np.zeros((Nt_max+1, 3))
 
     ed_norms = np.array([norm(x) for x in ed])
 
-    for i in range(1, Nt):
-        Fstr[i] = Es[i] * (ed_norms[i] / ht[i] - 1.0) * tan[i]
-
+    # pre-computing dUsde for all edges
+    for i in range(Nt):
         if mode_long_bond == 1.0 and i % 2 == 0:
-            # only for inter-dimer interfaces
-            Fstr[i] = 2.0 * alpha_long_bond * epsilon_long_bond * a_long_bond * np.exp( -a_long_bond * (ed_norms[i] - ht[i]) ) * ( 1.0 - np.exp( -a_long_bond * (ed_norms[i] - ht[i]) ) ) * tan[i]
+            # inter-dimer interfaces = Morse bonds
+            dUsde[i] = 2.0 * alpha_long_bond * epsilon_long_bond * a_long_bond * np.exp( -a_long_bond * (ed_norms[i] - ht[i]) ) *\
+                       ( 1.0 - np.exp( -a_long_bond * (ed_norms[i] - ht[i]) ) ) * tang[i]
+        else:
+            # intra-dimer interfaces = harmonic bonds
+            dUsde[i] = Es[i] * (ed_norms[i] / ht[i] - 1.0) * tang[i]
 
+    # computing Fs for all nodes
+    Fs[0]  = dUsde[0]
+    Fs[Nt] = - dUsde[Nt-1]
     for i in range(1, Nt):
-        Fs[i] = Fstr[i] - Fstr[i-1]
-
-    Fs[Nt] = -Es[Nt-1] * (ed_norms[Nt-1] / ht[Nt-1] - 1.0) * tan[Nt-1]
+        Fs[i] = dUsde[i] - dUsde[i-1]
 
     return Fs
 
 @njit(fastmath=True)
-def Fbend(Nt, Nt_max, M1, M2, kb, tan, ed, lv, K1eq, K2eq, Ek1, Ek2):
-    dK1de = computedKde(Nt, Nt_max, M2, kb, tan, ed, True, 1.0)
-    dK2de = computedKde(Nt, Nt_max, M1, kb, tan, ed, True, -1.0)
-
-    dK1de_1 = computedKde(Nt, Nt_max, M2, kb, tan, ed, False, 1.0)
-    dK2de_1 = computedKde(Nt, Nt_max, M1, kb, tan, ed, False, -1.0)
-
-    K1 = computeK(Nt, Nt_max, M2, kb, 1.0)
-    K2 = computeK(Nt, Nt_max, M1, kb, -1.0)
-
-    Fb = np.zeros((Nt_max+1, 3))
-
-    for i in range(1, Nt):
-        dEde = Ek1[i] / lv[i] * ( (K1[i] - K1eq[i]) * dK1de[i] + (K1[i+1] - K1eq[i+1]) * dK1de_1[i+1] ) +\
-               Ek2[i] / lv[i] * ( (K2[i] - K2eq[i]) * dK2de[i] + (K2[i+1] - K2eq[i+1]) * dK2de_1[i+1] )
-
-        dEde_1 = Ek1[i] / lv[i] * ( (K1[i-1] - K1eq[i-1]) * dK1de[i-1] + (K1[i] - K1eq[i]) * dK1de_1[i] ) +\
-                 Ek2[i] / lv[i] * ( (K2[i-1] - K2eq[i-1]) * dK2de[i-1] + (K2[i] - K2eq[i]) * dK2de_1[i] )
-
-        Fb[i] = -dEde_1 +  dEde
-
-    Fb[Nt] = -Ek1[Nt-1] / lv[Nt-1] * (K1[Nt-1] - K1eq[Nt-1]) * dK1de[Nt-1] -\
-              Ek2[Nt-1] / lv[Nt-1] * (K2[Nt-1] - K2eq[Nt-1]) * dK2de[Nt-1]
-
-    return Fb
-
-@njit(fastmath=True)
 def Ftwist(Nt, Nt_max, ed, Mtwist, kb, lv, Mtwist_eq, Et):
     Ft = np.zeros((Nt_max+1, 3))
+    dUtde = np.zeros((Nt_max+1, 3))
+
     dUdM = computedUdM(Nt, Nt_max, Mtwist, lv, Mtwist_eq)
+    dMde_same = computedMde(Nt, Nt_max, ed, kb, True)
+    dMde_diff = computedMde(Nt, Nt_max, ed, kb, False)
 
     ed_norms = np.array([norm(x) for x in ed])
 
-    for i in range(1, Nt):
-        Ft[i] = Et[i]   * dUdM[i]   * ( 1.0 / (2.0 * ed_norms[i]) - 1.0 / (2.0 * ed_norms[i-1]) ) * kb[i] -\
-                Et[i-1] * dUdM[i-1] *   1.0 / (2.0 * ed_norms[i-1]) * kb[i-1] +\
-                Et[i+1] * dUdM[i+1] *   1.0 / (2.0 * ed_norms[i]  ) * kb[i+1]
+    # pre-computing dUtde for all edges
+    for i in range(Nt):
+        dUtde[i] = Et[i]   * dUdM[i]   * dMde_same[i] +\
+                   Et[i+1] * dUdM[i+1] * dMde_diff[i+1]
 
-    Ft[Nt] = -Et[Nt-1] * dUdM[Nt-1] * ( 1.0 / (2.0 * ed_norms[Nt-1]) ) * kb[Nt-1]
+    # computing Ft for all nodes
+    Ft[0] = dUtde[0]
+    Ft[Nt] = - dUtde[Nt-1]
+    for i in range(1, Nt):
+        Ft[i] = dUtde[i] - dUtde[i-1]
 
     return Ft
 
 @njit(fastmath=True)
 def Ftwist_theta(Nt, Nt_max, Mtwist, lv, Mtwist_eq, Et):
-    Mt = np.zeros(Nt_max+1)
+    Mt = np.zeros(Nt_max)
     dUdM = computedUdM(Nt, Nt_max, Mtwist, lv, Mtwist_eq)
 
+    # computing Mt for all edges
+    Mt[0] = Et[1] * dUdM[1]
+    Mt[Nt-1] = - Et[Nt-1] * dUdM[Nt-1]
     for i in range(1, Nt-1):
         Mt[i] = Et[i+1] * dUdM[i+1] - Et[i] * dUdM[i]
-
-    Mt[Nt-1] = -Et[Nt-1] * dUdM[Nt-1]
 
     return Mt
 
 @njit(fastmath=True)
-def FcoupleM_k2(Nt, Nt_max, Mtwist, kb, lv, tan, ed, M1, Mtwist_eq, K2eq, Etb2):
-    dUdK2 = computedUdK(Nt, Nt_max, M1, lv, kb, K2eq, -1.0)
-    dK2de = computedKde(Nt, Nt_max, M1, kb, tan, ed, True, -1.0)
-    dK2de_1 = computedKde(Nt, Nt_max, M1, kb, tan, ed, False, -1.0)
-    dUdM = computedUdM(Nt, Nt_max, Mtwist, lv, Mtwist_eq)
+def Fbend(Nt, Nt_max, M1, M2, kb, tan, ed, lv, K1eq, K2eq, Ek1, Ek2):
+    Fb = np.zeros((Nt_max+1, 3))
+    dUbde = np.zeros((Nt_max+1, 3))
 
-    Ftb = np.zeros((Nt_max+1, 3))
+    dUdK1 = computedUdK(Nt, Nt_max, M2, lv, kb, K1eq,  1.0)
+    dUdK2 = computedUdK(Nt, Nt_max, M1, lv, kb, K2eq, -1.0)
+    dK1de_same = computedKde(Nt, Nt_max, M2, kb, tan, ed, True,  1.0)
+    dK2de_same = computedKde(Nt, Nt_max, M1, kb, tan, ed, True, -1.0)
+    dK1de_diff = computedKde(Nt, Nt_max, M2, kb, tan, ed, False,  1.0)
+    dK2de_diff = computedKde(Nt, Nt_max, M1, kb, tan, ed, False, -1.0)
+
+    # pre-computing dUbde for all edges
+    for i in range(Nt):
+        dUbde[i] = Ek1[i] * dUdK1[i] * dK1de_same[i] + Ek1[i+1] * dUdK1[i+1] * dK1de_diff[i+1] +\
+                   Ek2[i] * dUdK2[i] * dK2de_same[i] + Ek2[i+1] * dUdK2[i+1] * dK2de_diff[i+1]
+
+    # computing Fb for all nodes
+    Fb[0] = dUbde[0]
+    Fb[Nt] = - dUbde[Nt-1]
+    for i in range(1, Nt):
+        Fb[i] = dUbde[i] - dUbde[i-1]
+
+    return Fb
+
+@njit(fastmath=True)
+def FcoupleM_k2(Nt, Nt_max, Mtwist, kb, lv, tan, ed, M1, Mtwist_eq, K2eq, Etb2):
+    Ftb2 = np.zeros((Nt_max+1, 3))
+    dUtb2de = np.zeros((Nt_max+1, 3))
+
+    dUdM = computedUdM(Nt, Nt_max, Mtwist, lv, Mtwist_eq)
+    dMde_same = computedMde(Nt, Nt_max, ed, kb, True)
+    dMde_diff = computedMde(Nt, Nt_max, ed, kb, False)
+
+    dUdK2 = computedUdK(Nt, Nt_max, M1, lv, kb, K2eq, -1.0)
+    dK2de_same = computedKde(Nt, Nt_max, M1, kb, tan, ed, True, -1.0)
+    dK2de_diff = computedKde(Nt, Nt_max, M1, kb, tan, ed, False, -1.0)
 
     ed_norms = np.array([norm(x) for x in ed])
 
+    # pre-computing dUtb2de for all edges
+    for i in range(Nt):
+        dUtb2de[i] = Etb2[i]   * dUdK2[i]   * dMde_same[i]   + Etb2[i]   * dUdM[i]   * dK2de_same[i] +\
+                     Etb2[i+1] * dUdK2[i+1] * dMde_diff[i+1] + Etb2[i+1] * dUdM[i+1] * dK2de_diff[i+1]
+
+    # computing Ftb2 for all nodes
+    Ftb2[0] = dUtb2de[0]
+    Ftb2[Nt] = - dUtb2de[Nt-1]
     for i in range(1, Nt):
-        dEde = Etb2[i] * dUdM[i] * dK2de[i] +\
-               Etb2[i+1] * dUdM[i+1] * dK2de_1[i+1]
+        Ftb2[i] = dUtb2de[i] - dUtb2de[i-1]
 
-        dEde_1 = Etb2[i-1] * dUdM[i-1] * dK2de[i-1] +\
-                 Etb2[i] * dUdM[i] * dK2de_1[i]
-
-        Ftb[i] = Etb2[i]   * dUdK2[i]   * ( 1.0 / (2.0 * ed_norms[i]  ) - 1.0/(2.0 * ed_norms[i-1]) ) * kb[i] -\
-                 Etb2[i-1] * dUdK2[i-1] *   1.0 / (2.0 * ed_norms[i-1]) * kb[i-1] +\
-                 Etb2[i+1] * dUdK2[i+1] *   1.0 / (2.0 * ed_norms[i]  ) * kb[i+1] -\
-                 dEde_1 + dEde
-
-    Ftb[Nt] =  -Etb2[Nt-1] * (dUdK2[Nt-1] * ( 1.0 / (2.0 * ed_norms[Nt-1]) ) * kb[Nt-1] + dUdM[Nt-1] * dK2de[Nt-1])
-
-    return Ftb
+    return Ftb2
 
 @njit(fastmath=True)
-def Fcouple_theta2(Nt, Nt_max, M1, lv, kb, K2eq, Etb2):
+def FcoupleM_k2_theta(Nt, Nt_max, M1, lv, kb, K2eq, Etb2):
+    Mtb2 = np.zeros(Nt_max+1)
     dUdK2 = computedUdK(Nt, Nt_max, M1, lv, kb, K2eq, -1.0)
-    FtbTheta = np.zeros(Nt_max+1)
 
+    # computing Mt for all edges
+    Mtb2[0] = Etb2[1] * dUdK2[1]
+    Mtb2[Nt-1] = - Etb2[Nt-1] * dUdK2[Nt-1]
     for i in range(1, Nt-1):
-        FtbTheta[i] = Etb2[i+1] * dUdK2[i+1] - Etb2[i] * dUdK2[i]
+        Mtb2[i] = Etb2[i+1] * dUdK2[i+1] - Etb2[i] * dUdK2[i]
 
-    FtbTheta[Nt-1] = -Etb2[Nt-1] * dUdK2[Nt-1]
-
-    return FtbTheta
+    return Mtb2
 
 
 

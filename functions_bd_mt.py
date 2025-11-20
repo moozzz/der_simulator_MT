@@ -21,7 +21,7 @@ from functions_forces import Fbend
 from functions_forces import Ftwist
 from functions_forces import Ftwist_theta
 from functions_forces import FcoupleM_k2
-from functions_forces import Fcouple_theta2
+from functions_forces import FcoupleM_k2_theta
 from functions_forces import Flat
 
 
@@ -245,7 +245,7 @@ def run_bd_mt(nt, nt_skip, Nt_array, Nt_frozen, kbt, flag_restart, v_restart, th
             ft = Ftwist(Nt_array[p], Nt_max, ed[p], Mtwist[p], kb[p], lv[p], Mtwist_eq, Et)
             ft_theta = Ftwist_theta(Nt_array[p], Nt_max, Mtwist[p], lv[p], Mtwist_eq, Et)
             fc2 = FcoupleM_k2(Nt_array[p], Nt_max, Mtwist[p], kb[p], lv[p], tang[p], ed[p], M1[p], Mtwist_eq, K2eq, Etb2)
-            fc2_theta = Fcouple_theta2(Nt_array[p], Nt_max, M1[p], lv[p], kb[p], K2eq, Etb2)
+            fc2_theta = FcoupleM_k2_theta(Nt_array[p], Nt_max, M1[p], lv[p], kb[p], K2eq, Etb2)
 
             ################################
             # Update coordinates and angles

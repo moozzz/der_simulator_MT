@@ -148,10 +148,10 @@ def computedUdM(Nt, Nt_max, Mtwist, lv, Mtwist_eq):
 
 @njit(fastmath=True)
 def computedKde(Nt, Nt_max, M, kb, tang, ed, sameIndex, sign):
-    K = computeK(Nt, Nt_max, M, kb, sign)
     Ttilda = np.zeros((Nt_max+1, 3))
     Mtilda = np.zeros((Nt_max+1, 3))
     dKde = np.zeros((Nt_max+1, 3))
+    K = computeK(Nt, Nt_max, M, kb, sign)
 
     ed_norms = np.array([norm(x) for x in ed])
 
