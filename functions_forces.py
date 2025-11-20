@@ -81,16 +81,16 @@ def Ftwist_theta(Nt, Nt_max, Mtwist, lv, Mtwist_eq, Et):
     return Mt
 
 @njit(fastmath=True)
-def Fbend(Nt, Nt_max, M1, M2, kb, tan, ed, lv, K1eq, K2eq, Ek1, Ek2):
+def Fbend(Nt, Nt_max, M1, M2, kb, tang, ed, lv, K1eq, K2eq, Ek1, Ek2):
     Fb = np.zeros((Nt_max+1, 3))
     dUbde = np.zeros((Nt_max+1, 3))
 
     dUdK1 = computedUdK(Nt, Nt_max, M2, lv, kb, K1eq,  1.0)
     dUdK2 = computedUdK(Nt, Nt_max, M1, lv, kb, K2eq, -1.0)
-    dK1de_same = computedKde(Nt, Nt_max, M2, kb, tan, ed, True,  1.0)
-    dK2de_same = computedKde(Nt, Nt_max, M1, kb, tan, ed, True, -1.0)
-    dK1de_diff = computedKde(Nt, Nt_max, M2, kb, tan, ed, False,  1.0)
-    dK2de_diff = computedKde(Nt, Nt_max, M1, kb, tan, ed, False, -1.0)
+    dK1de_same = computedKde(Nt, Nt_max, M2, kb, tang, ed, True,  1.0)
+    dK2de_same = computedKde(Nt, Nt_max, M1, kb, tang, ed, True, -1.0)
+    dK1de_diff = computedKde(Nt, Nt_max, M2, kb, tang, ed, False,  1.0)
+    dK2de_diff = computedKde(Nt, Nt_max, M1, kb, tang, ed, False, -1.0)
 
     # pre-computing dUbde for all edges
     for i in range(Nt):
@@ -106,7 +106,7 @@ def Fbend(Nt, Nt_max, M1, M2, kb, tan, ed, lv, K1eq, K2eq, Ek1, Ek2):
     return Fb
 
 @njit(fastmath=True)
-def FcoupleM_k2(Nt, Nt_max, Mtwist, kb, lv, tan, ed, M1, Mtwist_eq, K2eq, Etb2):
+def FcoupleM_k2(Nt, Nt_max, Mtwist, kb, lv, tang, ed, M1, Mtwist_eq, K2eq, Etb2):
     Ftb2 = np.zeros((Nt_max+1, 3))
     dUtb2de = np.zeros((Nt_max+1, 3))
 
@@ -115,8 +115,8 @@ def FcoupleM_k2(Nt, Nt_max, Mtwist, kb, lv, tan, ed, M1, Mtwist_eq, K2eq, Etb2):
     dMde_diff = computedMde(Nt, Nt_max, ed, kb, False)
 
     dUdK2 = computedUdK(Nt, Nt_max, M1, lv, kb, K2eq, -1.0)
-    dK2de_same = computedKde(Nt, Nt_max, M1, kb, tan, ed, True, -1.0)
-    dK2de_diff = computedKde(Nt, Nt_max, M1, kb, tan, ed, False, -1.0)
+    dK2de_same = computedKde(Nt, Nt_max, M1, kb, tang, ed, True, -1.0)
+    dK2de_diff = computedKde(Nt, Nt_max, M1, kb, tang, ed, False, -1.0)
 
     ed_norms = np.array([norm(x) for x in ed])
 
