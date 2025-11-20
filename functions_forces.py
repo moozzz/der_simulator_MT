@@ -7,9 +7,10 @@ from numpy.linalg import norm as norm
 from numba import njit
 
 from functions_pf import computeK
+from functions_pf import computedMde
+from functions_pf import computedUdM
 from functions_pf import computedKde
-from functions_pf import computedEdm
-from functions_pf import computedEdK
+from functions_pf import computedUdK
 
 
 
@@ -68,67 +69,67 @@ def Fbend(Nt, Nt_max, M1, M2, kb, tan, ed, lv, K1eq, K2eq, Ek1, Ek2):
 @njit(fastmath=True)
 def Ftwist(Nt, Nt_max, ed, Mtwist, kb, lv, Mtwist_eq, Et):
     Ft = np.zeros((Nt_max+1, 3))
-    dEdm = computedEdm(Nt, Nt_max, Mtwist, lv, Mtwist_eq)
+    dUdM = computedUdM(Nt, Nt_max, Mtwist, lv, Mtwist_eq)
 
     ed_norms = np.array([norm(x) for x in ed])
 
     for i in range(1, Nt):
-        Ft[i] = Et[i]   * dEdm[i]   * ( 1.0 / (2.0 * ed_norms[i]) - 1.0 / (2.0 * ed_norms[i-1]) ) * kb[i] -\
-                Et[i-1] * dEdm[i-1] *   1.0 / (2.0 * ed_norms[i-1]) * kb[i-1] +\
-                Et[i+1] * dEdm[i+1] *   1.0 / (2.0 * ed_norms[i]  ) * kb[i+1]
+        Ft[i] = Et[i]   * dUdM[i]   * ( 1.0 / (2.0 * ed_norms[i]) - 1.0 / (2.0 * ed_norms[i-1]) ) * kb[i] -\
+                Et[i-1] * dUdM[i-1] *   1.0 / (2.0 * ed_norms[i-1]) * kb[i-1] +\
+                Et[i+1] * dUdM[i+1] *   1.0 / (2.0 * ed_norms[i]  ) * kb[i+1]
 
-    Ft[Nt] = -Et[Nt-1] * dEdm[Nt-1] * ( 1.0 / (2.0 * ed_norms[Nt-1]) ) * kb[Nt-1]
+    Ft[Nt] = -Et[Nt-1] * dUdM[Nt-1] * ( 1.0 / (2.0 * ed_norms[Nt-1]) ) * kb[Nt-1]
 
     return Ft
 
 @njit(fastmath=True)
 def Ftwist_theta(Nt, Nt_max, Mtwist, lv, Mtwist_eq, Et):
     Mt = np.zeros(Nt_max+1)
-    dEdm = computedEdm(Nt, Nt_max, Mtwist, lv, Mtwist_eq)
+    dUdM = computedUdM(Nt, Nt_max, Mtwist, lv, Mtwist_eq)
 
     for i in range(1, Nt-1):
-        Mt[i] = Et[i+1] * dEdm[i+1] - Et[i] * dEdm[i]
+        Mt[i] = Et[i+1] * dUdM[i+1] - Et[i] * dUdM[i]
 
-    Mt[Nt-1] = -Et[Nt-1] * dEdm[Nt-1]
+    Mt[Nt-1] = -Et[Nt-1] * dUdM[Nt-1]
 
     return Mt
 
 @njit(fastmath=True)
 def FcoupleM_k2(Nt, Nt_max, Mtwist, kb, lv, tan, ed, M1, Mtwist_eq, K2eq, Etb2):
-    dEdK2 = computedEdK(Nt, Nt_max, M1, lv, kb, K2eq, -1.0)
+    dUdK2 = computedUdK(Nt, Nt_max, M1, lv, kb, K2eq, -1.0)
     dK2de = computedKde(Nt, Nt_max, M1, kb, tan, ed, True, -1.0)
     dK2de_1 = computedKde(Nt, Nt_max, M1, kb, tan, ed, False, -1.0)
-    dEdm = computedEdm(Nt, Nt_max, Mtwist, lv, Mtwist_eq)
+    dUdM = computedUdM(Nt, Nt_max, Mtwist, lv, Mtwist_eq)
 
     Ftb = np.zeros((Nt_max+1, 3))
 
     ed_norms = np.array([norm(x) for x in ed])
 
     for i in range(1, Nt):
-        dEde = Etb2[i] * dEdm[i] * dK2de[i] +\
-               Etb2[i+1] * dEdm[i+1] * dK2de_1[i+1]
+        dEde = Etb2[i] * dUdM[i] * dK2de[i] +\
+               Etb2[i+1] * dUdM[i+1] * dK2de_1[i+1]
 
-        dEde_1 = Etb2[i-1] * dEdm[i-1] * dK2de[i-1] +\
-                 Etb2[i] * dEdm[i] * dK2de_1[i]
+        dEde_1 = Etb2[i-1] * dUdM[i-1] * dK2de[i-1] +\
+                 Etb2[i] * dUdM[i] * dK2de_1[i]
 
-        Ftb[i] = Etb2[i]   * dEdK2[i]   * ( 1.0 / (2.0 * ed_norms[i]  ) - 1.0/(2.0 * ed_norms[i-1]) ) * kb[i] -\
-                 Etb2[i-1] * dEdK2[i-1] *   1.0 / (2.0 * ed_norms[i-1]) * kb[i-1] +\
-                 Etb2[i+1] * dEdK2[i+1] *   1.0 / (2.0 * ed_norms[i]  ) * kb[i+1] -\
+        Ftb[i] = Etb2[i]   * dUdK2[i]   * ( 1.0 / (2.0 * ed_norms[i]  ) - 1.0/(2.0 * ed_norms[i-1]) ) * kb[i] -\
+                 Etb2[i-1] * dUdK2[i-1] *   1.0 / (2.0 * ed_norms[i-1]) * kb[i-1] +\
+                 Etb2[i+1] * dUdK2[i+1] *   1.0 / (2.0 * ed_norms[i]  ) * kb[i+1] -\
                  dEde_1 + dEde
 
-    Ftb[Nt] =  -Etb2[Nt-1] * (dEdK2[Nt-1] * ( 1.0 / (2.0 * ed_norms[Nt-1]) ) * kb[Nt-1] + dEdm[Nt-1] * dK2de[Nt-1])
+    Ftb[Nt] =  -Etb2[Nt-1] * (dUdK2[Nt-1] * ( 1.0 / (2.0 * ed_norms[Nt-1]) ) * kb[Nt-1] + dUdM[Nt-1] * dK2de[Nt-1])
 
     return Ftb
 
 @njit(fastmath=True)
 def Fcouple_theta2(Nt, Nt_max, M1, lv, kb, K2eq, Etb2):
-    dEdK2 = computedEdK(Nt, Nt_max, M1, lv, kb, K2eq, -1.0)
+    dUdK2 = computedUdK(Nt, Nt_max, M1, lv, kb, K2eq, -1.0)
     FtbTheta = np.zeros(Nt_max+1)
 
     for i in range(1, Nt-1):
-        FtbTheta[i] = Etb2[i+1] * dEdK2[i+1] - Etb2[i] * dEdK2[i]
+        FtbTheta[i] = Etb2[i+1] * dUdK2[i+1] - Etb2[i] * dUdK2[i]
 
-    FtbTheta[Nt-1] = -Etb2[Nt-1] * dEdK2[Nt-1]
+    FtbTheta[Nt-1] = -Etb2[Nt-1] * dUdK2[Nt-1]
 
     return FtbTheta
 

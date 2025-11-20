@@ -38,6 +38,17 @@ def computeEdges(Nt, Nt_max, v):
     return ed
 
 @njit(fastmath=True)
+def computeTangents(Nt, Nt_max, ed):
+    tang = np.zeros((Nt_max, 3))
+
+    ed_norms = np.array([norm(x) for x in ed])
+
+    for i in range(Nt):
+        tang[i] = ed[i] / ed_norms[i]
+
+    return tang
+
+@njit(fastmath=True)
 def computeBishopFrame(Nt, Nt_max, t0, u0, tang):
     u = u0
     U = np.zeros((Nt_max, 3))
@@ -56,8 +67,8 @@ def computeBishopFrame(Nt, Nt_max, t0, u0, tang):
 
 @njit(fastmath=True)
 def computeMaterialFrame(Nt, Nt_max, U, V, theta):
-    M1 = np.zeros((Nt_max+1, 3))
-    M2 = np.zeros((Nt_max+1, 3))
+    M1 = np.zeros((Nt_max, 3))
+    M2 = np.zeros((Nt_max, 3))
 
     cos_theta = np.cos(theta)
     sin_theta = np.sin(theta)
@@ -89,17 +100,6 @@ def computeCurvatureBinormals(Nt, Nt_max, tang):
     return kb
 
 @njit(fastmath=True)
-def computeTangents(Nt, Nt_max, ed):
-    tang = np.zeros((Nt_max, 3))
-
-    ed_norms = np.array([norm(x) for x in ed])
-
-    for i in range(Nt):
-        tang[i] = ed[i] / ed_norms[i]
-
-    return tang
-
-@njit(fastmath=True)
 def computeTwist(Nt, Nt_max, theta, mref):
     Mtwist = np.zeros(Nt_max+1)
 
@@ -120,31 +120,25 @@ def computeK(Nt, Nt_max, M, kb, sign):
 
 
 ###########################################################
-# PARTIAL DERIVATIVES
+# USER-DEFINED PARTIAL DERIVATIVES
 ###########################################################
 
 @njit(fastmath=True)
-def computedKde(Nt, Nt_max, M, kb, tan, ed, inEdge, sign):
-    K = computeK(Nt, Nt_max, M, kb, sign)
-    Ttilda = np.zeros((Nt_max+1, 3))
-    Mtilda = np.zeros((Nt_max+1, 3))
-    dKde = np.zeros((Nt_max+1, 3))
+def computedMde(Nt, Nt_max, ed, kb, sameIndex):
+    dMde = np.zeros((Nt_max+1, 3))
 
     ed_norms = np.array([norm(x) for x in ed])
 
     for i in range(1, Nt):
-        Ttilda[i] = (tan[i-1] + tan[i]) / (1.0 + np.dot(tan[i-1], tan[i]))
-        Mtilda[i] = (M[i-1]   + M[i]  ) / (1.0 + np.dot(tan[i-1], tan[i]))
-
-        if inEdge:
-            dKde[i] = 1.0 / ed_norms[i]   * (-K[i] * Ttilda[i] - sign * np.cross(tan[i-1], Mtilda[i]))
+        if sameIndex:
+            dMde[i] = kb[i] / (2.0 * ed_norms[i])
         else:
-            dKde[i] = 1.0 / ed_norms[i-1] * (-K[i] * Ttilda[i] + sign * np.cross(tan[i],   Mtilda[i]))
+            dMde[i] = kb[i] / (2.0 * ed_norms[i-1])
 
-    return dKde
+    return dMde
 
 @njit(fastmath=True)
-def computedEdm(Nt, Nt_max, Mtwist, lv, Mtwist_eq):
+def computedUdM(Nt, Nt_max, Mtwist, lv, Mtwist_eq):
     dEdm = np.zeros(Nt_max+1)
 
     for i in range(1, Nt):
@@ -153,7 +147,27 @@ def computedEdm(Nt, Nt_max, Mtwist, lv, Mtwist_eq):
     return dEdm
 
 @njit(fastmath=True)
-def computedEdK(Nt, Nt_max, M, lv, kb, Keq, sign):
+def computedKde(Nt, Nt_max, M, kb, tang, ed, sameIndex, sign):
+    K = computeK(Nt, Nt_max, M, kb, sign)
+    Ttilda = np.zeros((Nt_max+1, 3))
+    Mtilda = np.zeros((Nt_max+1, 3))
+    dKde = np.zeros((Nt_max+1, 3))
+
+    ed_norms = np.array([norm(x) for x in ed])
+
+    for i in range(1, Nt):
+        Ttilda[i] = (tang[i-1] + tang[i]) / (1.0 + np.dot(tang[i-1], tang[i]))
+        Mtilda[i] = (M[i-1]   + M[i]    ) / (1.0 + np.dot(tang[i-1], tang[i]))
+
+        if sameIndex:
+            dKde[i] = 1.0 / ed_norms[i]   * ( -K[i] * Ttilda[i] - sign * np.cross(tang[i-1], Mtilda[i]) )
+        else:
+            dKde[i] = 1.0 / ed_norms[i-1] * ( -K[i] * Ttilda[i] + sign * np.cross(tang[i],   Mtilda[i]) )
+
+    return dKde
+
+@njit(fastmath=True)
+def computedUdK(Nt, Nt_max, M, lv, kb, Keq, sign):
     dEdK = np.zeros(Nt_max+1)
     K = computeK(Nt, Nt_max, M, kb, sign)
 
