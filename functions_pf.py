@@ -139,12 +139,12 @@ def computedMde(Nt, Nt_max, ed, kb, sameIndex):
 
 @njit(fastmath=True)
 def computedUdM(Nt, Nt_max, Mtwist, lv, Mtwist_eq):
-    dEdm = np.zeros(Nt_max+1)
+    dUdM = np.zeros(Nt_max+1)
 
     for i in range(1, Nt):
-        dEdm[i] = 1.0 / lv[i] * (Mtwist[i] - Mtwist_eq[i])
+        dUdM[i] = 1.0 / lv[i] * (Mtwist[i] - Mtwist_eq[i])
 
-    return dEdm
+    return dUdM
 
 @njit(fastmath=True)
 def computedKde(Nt, Nt_max, M, kb, tang, ed, sameIndex, sign):
@@ -168,11 +168,11 @@ def computedKde(Nt, Nt_max, M, kb, tang, ed, sameIndex, sign):
 
 @njit(fastmath=True)
 def computedUdK(Nt, Nt_max, M, lv, kb, Keq, sign):
-    dEdK = np.zeros(Nt_max+1)
+    dUdK = np.zeros(Nt_max+1)
     K = computeK(Nt, Nt_max, M, kb, sign)
 
     for i in range(1, Nt):
-        dEdK[i] = 1.0 / lv[i] * (K[i] - Keq[i])
+        dUdK[i] = 1.0 / lv[i] * (K[i] - Keq[i])
 
-    return dEdK
+    return dUdK
 
