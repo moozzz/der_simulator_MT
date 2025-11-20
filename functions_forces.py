@@ -21,7 +21,7 @@ from functions_pf import computedUdK
 @njit(fastmath=True)
 def Fstretch(Nt, Nt_max, ed, tang, ht, Es, epsilon_long_bond, a_long_bond, mode_long_bond, alpha_long_bond):
     Fs = np.zeros((Nt_max+1, 3))
-    dUsde = np.zeros((Nt_max+1, 3))
+    dUsde = np.zeros((Nt_max, 3))
 
     ed_norms = np.array([norm(x) for x in ed])
 
@@ -46,7 +46,7 @@ def Fstretch(Nt, Nt_max, ed, tang, ht, Es, epsilon_long_bond, a_long_bond, mode_
 @njit(fastmath=True)
 def Ftwist(Nt, Nt_max, ed, Mtwist, kb, lv, Mtwist_eq, Et):
     Ft = np.zeros((Nt_max+1, 3))
-    dUtde = np.zeros((Nt_max+1, 3))
+    dUtde = np.zeros((Nt_max, 3))
 
     dUdM = computedUdM(Nt, Nt_max, Mtwist, lv, Mtwist_eq)
     dMde_same = computedMde(Nt, Nt_max, ed, kb, True)
@@ -83,7 +83,7 @@ def Ftwist_theta(Nt, Nt_max, Mtwist, lv, Mtwist_eq, Et):
 @njit(fastmath=True)
 def Fbend(Nt, Nt_max, M1, M2, kb, tang, ed, lv, K1eq, K2eq, Ek1, Ek2):
     Fb = np.zeros((Nt_max+1, 3))
-    dUbde = np.zeros((Nt_max+1, 3))
+    dUbde = np.zeros((Nt_max, 3))
 
     dUdK1 = computedUdK(Nt, Nt_max, M2, lv, kb, K1eq,  1.0)
     dUdK2 = computedUdK(Nt, Nt_max, M1, lv, kb, K2eq, -1.0)
@@ -108,7 +108,7 @@ def Fbend(Nt, Nt_max, M1, M2, kb, tang, ed, lv, K1eq, K2eq, Ek1, Ek2):
 @njit(fastmath=True)
 def FcoupleM_k2(Nt, Nt_max, Mtwist, kb, lv, tang, ed, M1, Mtwist_eq, K2eq, Etb2):
     Ftb2 = np.zeros((Nt_max+1, 3))
-    dUtb2de = np.zeros((Nt_max+1, 3))
+    dUtb2de = np.zeros((Nt_max, 3))
 
     dUdM = computedUdM(Nt, Nt_max, Mtwist, lv, Mtwist_eq)
     dMde_same = computedMde(Nt, Nt_max, ed, kb, True)
@@ -135,7 +135,7 @@ def FcoupleM_k2(Nt, Nt_max, Mtwist, kb, lv, tang, ed, M1, Mtwist_eq, K2eq, Etb2)
 
 @njit(fastmath=True)
 def FcoupleM_k2_theta(Nt, Nt_max, M1, lv, kb, K2eq, Etb2):
-    Mtb2 = np.zeros(Nt_max+1)
+    Mtb2 = np.zeros(Nt_max)
     dUdK2 = computedUdK(Nt, Nt_max, M1, lv, kb, K2eq, -1.0)
 
     # computing Mt for all edges
