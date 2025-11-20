@@ -82,9 +82,9 @@ def computeVoronoiLen(Nt, Nt_max, ed):
     lv = np.zeros(Nt_max+1)
 
     ed_norms = np.array([norm(x) for x in ed])
+
     lv[0]  = 0.5 * ed_norms[0]
     lv[Nt] = 0.5 * ed_norms[Nt-1]
-
     for i in range(1, Nt):
         lv[i] = 0.5 * (ed_norms[i-1] + ed_norms[i])
 
