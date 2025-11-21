@@ -235,9 +235,9 @@ def run_bd_mt(nt, nt_skip, Nt_array, Nt_frozen, kbt, flag_restart, v_restart, th
         ################################
         # don't calculate lateral forces for a single PF
         if npf > 1:
-            flv = Flat(Nt_array, M1, M2, v, tang, epsilon_lat_bond_homo, epsilon_lat_bond_seam, a_lat_bond_homo, a_lat_bond_seam, alpha_lat_bond)
+            flat = Flat(Nt_array, M1, M2, v, tang, epsilon_lat_bond_homo, epsilon_lat_bond_seam, a_lat_bond_homo, a_lat_bond_seam, alpha_lat_bond)
         else:
-            flv = np.zeros((npf, Nt_max+1, 3))
+            flat = np.zeros((npf, Nt_max+1, 3))
 
         for p in range(npf):
             fs = Fstretch(Nt_array[p], Nt_max, ed[p], tang[p], ht, Es, epsilon_long_bond, a_long_bond, mode_long_bond, alpha_long_bond)
@@ -253,7 +253,7 @@ def run_bd_mt(nt, nt_skip, Nt_array, Nt_frozen, kbt, flag_restart, v_restart, th
             # update coordinates
             for i in range(Nt_frozen+1, Nt_array[p]+1):
                 v[p, i] = v[p, i] +\
-                          dv2 / kbt * (fs[i] + ft[i] + fb[i] + ftb2[i] + flv[p, i]) +\
+                          dv2 / kbt * (fs[i] + ft[i] + fb[i] + ftb2[i] + flat[p, i]) +\
                           sqrt_2_dv2 * np.array([np.random.normal(),
                                                  np.random.normal(),
                                                  np.random.normal()])
