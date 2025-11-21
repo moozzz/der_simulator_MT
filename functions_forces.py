@@ -186,7 +186,9 @@ def attr_flat(par_epsilon_lat_bond, R, R_unit, a_lat_bond, R0_BS):
     # R0_BS - eq distance b/w binding sites
 
     if R >= R0_BS:
-        afl =  2.0 * par_epsilon_lat_bond * a_lat_bond * np.exp( -a_lat_bond * (R - R0_BS) ) * (1.0 - np.exp( -a_lat_bond * (R - R0_BS) )) * R_unit
+        A = 2.0 * par_epsilon_lat_bond * a_lat_bond
+        np_exp = np.exp( -a_lat_bond * (R - R0_BS) )
+        afl = A * np_exp * ( 1.0 - np_exp ) * R_unit
     else:
         afl = np.zeros(3)
     
