@@ -17,9 +17,9 @@ from functions_pf import computeCurvatureBinormals
 from functions_pf import computeTwist
 
 from functions_forces import Fstretch
-from functions_forces import Fbend
 from functions_forces import Ftwist
 from functions_forces import Ftwist_theta
+from functions_forces import Fbend
 from functions_forces import FcoupleM_k2
 from functions_forces import FcoupleM_k2_theta
 from functions_forces import Flat
@@ -241,11 +241,11 @@ def run_bd_mt(nt, nt_skip, Nt_array, Nt_frozen, kbt, flag_restart, v_restart, th
 
         for p in range(npf):
             fs = Fstretch(Nt_array[p], Nt_max, ed[p], tang[p], ht, Es, epsilon_long_bond, a_long_bond, mode_long_bond, alpha_long_bond)
-            fb = Fbend(Nt_array[p], Nt_max, M1[p], M2[p], kb[p], tang[p], ed[p], lv[p], K1eq, K2eq, Ek1, Ek2)
             ft = Ftwist(Nt_array[p], Nt_max, ed[p], Mtwist[p], kb[p], lv[p], Mtwist_eq, Et)
             ft_theta = Ftwist_theta(Nt_array[p], Nt_max, Mtwist[p], lv[p], Mtwist_eq, Et)
-            fc2 = FcoupleM_k2(Nt_array[p], Nt_max, Mtwist[p], kb[p], lv[p], tang[p], ed[p], M1[p], Mtwist_eq, K2eq, Etb2)
-            fc2_theta = FcoupleM_k2_theta(Nt_array[p], Nt_max, M1[p], lv[p], kb[p], K2eq, Etb2)
+            fb = Fbend(Nt_array[p], Nt_max, M1[p], M2[p], kb[p], tang[p], ed[p], lv[p], K1eq, K2eq, Ek1, Ek2)
+            ftb2 = FcoupleM_k2(Nt_array[p], Nt_max, Mtwist[p], kb[p], lv[p], tang[p], ed[p], M1[p], Mtwist_eq, K2eq, Etb2)
+            ftb2_theta = FcoupleM_k2_theta(Nt_array[p], Nt_max, M1[p], lv[p], kb[p], K2eq, Etb2)
 
             ################################
             # Update coordinates and angles
@@ -253,7 +253,7 @@ def run_bd_mt(nt, nt_skip, Nt_array, Nt_frozen, kbt, flag_restart, v_restart, th
             # update coordinates
             for i in range(Nt_frozen+1, Nt_array[p]+1):
                 v[p, i] = v[p, i] +\
-                          dv2 / kbt * (fs[i] + fb[i] + ft[i] + fc2[i] + flv[p, i]) +\
+                          dv2 / kbt * (fs[i] + ft[i] + fb[i] + ftb2[i] + flv[p, i]) +\
                           sqrt_2_dv2 * np.array([np.random.normal(),
                                                  np.random.normal(),
                                                  np.random.normal()])
@@ -261,7 +261,7 @@ def run_bd_mt(nt, nt_skip, Nt_array, Nt_frozen, kbt, flag_restart, v_restart, th
             # update angles
             for i in range(Nt_frozen, Nt_array[p]):
                 theta[p, i] = theta[p, i] +\
-                              dth2 / kbt * (ft_theta[i] + fc2_theta[i]) +\
+                              dth2 / kbt * (ft_theta[i] + ftb2_theta[i]) +\
                               sqrt_2_dth2 * np.random.normal()
 
             ################################
