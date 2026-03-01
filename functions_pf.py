@@ -151,21 +151,29 @@ def computedUdM(Nt, Nt_max, Mtwist, lv, Mtwist_eq):
     return dUdM
 
 @njit(fastmath=True)
-def computedKde(Nt, Nt_max, M, K, kb, tang, ed_norms, sameIndex, sign):
-    Ttilda = np.zeros((Nt_max+1, 3))
-    Mtilda = np.zeros((Nt_max+1, 3))
-    dKde = np.zeros((Nt_max+1, 3))
+def computedKde(Nt, Nt_max, M1, M2, K1, K2, kb, tang, ed_norms):
+    dK1de_same = np.zeros((Nt_max+1, 3))
+    dK1de_diff = np.zeros((Nt_max+1, 3))
+    dK2de_same = np.zeros((Nt_max+1, 3))
+    dK2de_diff = np.zeros((Nt_max+1, 3))
 
     for i in range(1, Nt):
-        Ttilda[i] = (tang[i-1] + tang[i]) / (1.0 + np.dot(tang[i-1], tang[i]))
-        Mtilda[i] = (M[i-1]   + M[i]    ) / (1.0 + np.dot(tang[i-1], tang[i]))
+        denom      = 1.0 + np.dot(tang[i-1], tang[i])
+        Ttilda     = (tang[i-1] + tang[i]) / denom
+        Mtilda_M2  = (M2[i-1]  + M2[i]  ) / denom
+        Mtilda_M1  = (M1[i-1]  + M1[i]  ) / denom
 
-        if sameIndex:
-            dKde[i] = 1.0 / ed_norms[i]   * ( -K[i] * Ttilda[i] - sign * np.cross(tang[i-1], Mtilda[i]) )
-        else:
-            dKde[i] = 1.0 / ed_norms[i-1] * ( -K[i] * Ttilda[i] + sign * np.cross(tang[i],   Mtilda[i]) )
+        cross_tprev_M2 = np.cross(tang[i-1], Mtilda_M2)
+        cross_ti_M2    = np.cross(tang[i],   Mtilda_M2)
+        cross_tprev_M1 = np.cross(tang[i-1], Mtilda_M1)
+        cross_ti_M1    = np.cross(tang[i],   Mtilda_M1)
 
-    return dKde
+        dK1de_same[i] = (1.0 / ed_norms[i]  ) * (-K1[i] * Ttilda - cross_tprev_M2)
+        dK1de_diff[i] = (1.0 / ed_norms[i-1]) * (-K1[i] * Ttilda + cross_ti_M2   )
+        dK2de_same[i] = (1.0 / ed_norms[i]  ) * (-K2[i] * Ttilda + cross_tprev_M1)
+        dK2de_diff[i] = (1.0 / ed_norms[i-1]) * (-K2[i] * Ttilda - cross_ti_M1   )
+
+    return dK1de_same, dK1de_diff, dK2de_same, dK2de_diff
 
 @njit(fastmath=True)
 def computedUdK(Nt, Nt_max, K, lv, Keq):

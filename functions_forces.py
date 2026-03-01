@@ -158,10 +158,7 @@ def Fpf_all_node_theta(Nt, Nt_max, ed_norms, tang, ht, Es,
     dUdM      = computedUdM(Nt, Nt_max, Mtwist, lv, Mtwist_eq)
     dMde_same = computedMde(Nt, Nt_max, ed_norms, kb, True)
     dMde_diff = computedMde(Nt, Nt_max, ed_norms, kb, False)
-    dK1de_same = computedKde(Nt, Nt_max, M2, K1, kb, tang, ed_norms, True,   1.0)
-    dK1de_diff = computedKde(Nt, Nt_max, M2, K1, kb, tang, ed_norms, False,  1.0)
-    dK2de_same = computedKde(Nt, Nt_max, M1, K2, kb, tang, ed_norms, True,  -1.0)
-    dK2de_diff = computedKde(Nt, Nt_max, M1, K2, kb, tang, ed_norms, False, -1.0)
+    dK1de_same, dK1de_diff, dK2de_same, dK2de_diff = computedKde(Nt, Nt_max, M1, M2, K1, K2, kb, tang, ed_norms)
 
     # edge-level contributions (Fstretch + Ftwist + Fbend + FcoupleM_k2)
     dUde = np.zeros((Nt_max, 3))
