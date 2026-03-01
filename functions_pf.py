@@ -19,11 +19,12 @@ def get_angle(vec1, vec2, vn):
 @njit(fastmath=True)
 def parallel_transport(u, t1, t2):
     b = np.cross(t1, t2)
+    b_norm = norm(b)
 
-    if norm(b) == 0.0:
+    if b_norm == 0.0:
         return u
 
-    b = b / norm(b)
+    b = b / b_norm
     n1 = np.cross(t1, b)
     n2 = np.cross(t2, b)
 
