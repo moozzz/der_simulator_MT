@@ -144,6 +144,65 @@ def FcoupleM_k2_theta(Nt, Nt_max, M1, lv, kb, K2eq, Etb2):
 
     return Mtb2
 
+@njit(fastmath=True)
+def Fpf_all_node_theta(Nt, Nt_max, ed_norms, tang, ht, Es,
+                       epsilon_long_bond, a_long_bond, mode_long_bond, alpha_long_bond,
+                       Mtwist, kb, lv, Mtwist_eq, Et,
+                       M1, M2, K1eq, K2eq, Ek1, Ek2, Etb2):
+
+    # shared force intermediates (each computed once)
+    K1 = computeK(Nt, Nt_max, M2, kb,  1.0)
+    K2 = computeK(Nt, Nt_max, M1, kb, -1.0)
+    dUdK1 = computedUdK(Nt, Nt_max, K1, lv, K1eq)
+    dUdK2 = computedUdK(Nt, Nt_max, K2, lv, K2eq)
+    dUdM      = computedUdM(Nt, Nt_max, Mtwist, lv, Mtwist_eq)
+    dMde_same = computedMde(Nt, Nt_max, ed_norms, kb, True)
+    dMde_diff = computedMde(Nt, Nt_max, ed_norms, kb, False)
+    dK1de_same = computedKde(Nt, Nt_max, M2, K1, kb, tang, ed_norms, True,   1.0)
+    dK1de_diff = computedKde(Nt, Nt_max, M2, K1, kb, tang, ed_norms, False,  1.0)
+    dK2de_same = computedKde(Nt, Nt_max, M1, K2, kb, tang, ed_norms, True,  -1.0)
+    dK2de_diff = computedKde(Nt, Nt_max, M1, K2, kb, tang, ed_norms, False, -1.0)
+
+    # edge-level contributions (Fstretch + Ftwist + Fbend + FcoupleM_k2)
+    dUde = np.zeros((Nt_max, 3))
+
+    for i in range(Nt):
+        # Fstretch
+        if mode_long_bond == 1.0 and i % 2 == 0:
+            dUde[i] = 2.0 * alpha_long_bond * epsilon_long_bond * a_long_bond * np.exp( -a_long_bond * (ed_norms[i] - ht[i]) ) *\
+                      ( 1.0 - np.exp( -a_long_bond * (ed_norms[i] - ht[i]) ) ) * tang[i]
+        else:
+            dUde[i] = Es[i] * (ed_norms[i] / ht[i] - 1.0) * tang[i]
+
+        # Ftwist
+        dUde[i] += Et[i]   * dUdM[i]   * dMde_same[i] +\
+                   Et[i+1] * dUdM[i+1] * dMde_diff[i+1]
+
+        # Fbend
+        dUde[i] += Ek1[i]  * dUdK1[i]  * dK1de_same[i] + Ek1[i+1] * dUdK1[i+1] * dK1de_diff[i+1] +\
+                   Ek2[i]  * dUdK2[i]  * dK2de_same[i] + Ek2[i+1] * dUdK2[i+1] * dK2de_diff[i+1]
+
+        # FcoupleM_k2
+        dUde[i] += Etb2[i]   * dUdK2[i]   * dMde_same[i]   + Etb2[i]   * dUdM[i]   * dK2de_same[i] +\
+                   Etb2[i+1] * dUdK2[i+1] * dMde_diff[i+1] + Etb2[i+1] * dUdM[i+1] * dK2de_diff[i+1]
+
+    # convert edge forces to node forces
+    Fnode = np.zeros((Nt_max+1, 3))
+    Fnode[0]  =  dUde[0]
+    Fnode[Nt] = -dUde[Nt-1]
+    for i in range(1, Nt):
+        Fnode[i] = dUde[i] - dUde[i-1]
+
+    # angle-level forces (Ftwist_theta + FcoupleM_k2_theta)
+    Ftheta = np.zeros(Nt_max)
+    Ftheta[0]    =   Et[1]    * dUdM[1]    + Etb2[1]    * dUdK2[1]
+    Ftheta[Nt-1] = -(Et[Nt-1] * dUdM[Nt-1] + Etb2[Nt-1] * dUdK2[Nt-1])
+    for i in range(1, Nt-1):
+        Ftheta[i] = (Et[i+1]   * dUdM[i+1]   - Et[i]   * dUdM[i]) +\
+                    (Etb2[i+1] * dUdK2[i+1]  - Etb2[i] * dUdK2[i])
+
+    return Fnode, Ftheta
+
 
 
 ###############################################
