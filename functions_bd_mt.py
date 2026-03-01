@@ -9,6 +9,7 @@ from numba import njit
 from functions_pf import get_angle
 from functions_pf import parallel_transport
 from functions_pf import computeEdges
+from functions_pf import computeEdgeNorms
 from functions_pf import computeTangents
 from functions_pf import computeBishopFrame
 from functions_pf import computeMaterialFrame
@@ -98,18 +99,19 @@ def init_start_conf(Nt_array, ht,
     offset_pf = 0.8845 # nm
 
     # initialize arrays
-    v      = np.zeros((npf, Nt_max+1, 3))
-    theta  = np.zeros((npf, Nt_max))
-    ut     = np.zeros((npf, Nt_max, 3))
-    vt     = np.zeros((npf, Nt_max, 3))
-    mref   = np.zeros((npf, Nt_max))
-    ed     = np.zeros((npf, Nt_max, 3))
-    tang   = np.zeros((npf, Nt_max, 3))
-    Mtwist = np.zeros((npf, Nt_max+1))
-    M1     = np.zeros((npf, Nt_max, 3))
-    M2     = np.zeros((npf, Nt_max, 3))
-    lv     = np.zeros((npf, Nt_max+1))
-    kb     = np.zeros((npf, Nt_max+1, 3))
+    v        = np.zeros((npf, Nt_max+1, 3))
+    theta    = np.zeros((npf, Nt_max))
+    ut       = np.zeros((npf, Nt_max, 3))
+    vt       = np.zeros((npf, Nt_max, 3))
+    mref     = np.zeros((npf, Nt_max))
+    ed       = np.zeros((npf, Nt_max, 3))
+    ed_norms = np.zeros((npf, Nt_max))
+    tang     = np.zeros((npf, Nt_max, 3))
+    Mtwist   = np.zeros((npf, Nt_max+1))
+    M1       = np.zeros((npf, Nt_max, 3))
+    M2       = np.zeros((npf, Nt_max, 3))
+    lv       = np.zeros((npf, Nt_max+1))
+    kb       = np.zeros((npf, Nt_max+1, 3))
 
     u0     = np.zeros((npf, 3))
     t0     = np.array([0.0, 0.0, 1.0])
@@ -141,13 +143,14 @@ def init_start_conf(Nt_array, ht,
             u0[p] = u_tem / norm(u_tem)
     
             ed[p] = computeEdges(Nt_array[p], Nt_max, v[p])
-            tang[p] = computeTangents(Nt_array[p], Nt_max, ed[p])
+            ed_norms[p] = computeEdgeNorms(Nt_array[p], Nt_max, ed[p])
+            tang[p] = computeTangents(Nt_array[p], Nt_max, ed[p], ed_norms[p])
 
             ut[p], vt[p] = computeBishopFrame(Nt_array[p], Nt_max, t0, u0[p], tang[p])
             Mtwist[p] = computeTwist(Nt_array[p], Nt_max, theta[p], mref[p])
             M1[p], M2[p] = computeMaterialFrame(Nt_array[p], Nt_max, ut[p], vt[p], theta[p])
 
-            lv[p] = computeVoronoiLen(Nt_array[p], Nt_max, ed[p])
+            lv[p] = computeVoronoiLen(Nt_array[p], Nt_max, ed_norms[p])
             kb[p] = computeCurvatureBinormals(Nt_array[p], Nt_max, tang[p])
 
             M1[p, 0] = u0[p]
@@ -155,7 +158,7 @@ def init_start_conf(Nt_array, ht,
             ut[p, 0] = u0[p]
             vt[p, 0] = np.cross(t0, u0[p])
 
-    return (v, theta, ut, vt, mref, ed,
+    return (v, theta, ut, vt, mref, ed, ed_norms,
             tang, Mtwist, M1, M2, lv, kb)
 
 
@@ -184,22 +187,22 @@ def run_bd_mt(nt, nt_skip, Nt_array, Nt_frozen, kbt, flag_restart, v_restart, th
     ################################
     # Starting configuration
     ################################
-    (v, theta, ut, vt, mref, ed,
+    (v, theta, ut, vt, mref, ed, ed_norms,
      tang, Mtwist, M1, M2, lv, kb) = init_start_conf(Nt_array, ht,
                                                      flag_restart, v_restart, theta_restart, ut_restart, vt_restart, mref_restart)
 
     ################################
     # Output arrays
     ################################
-    traj_v     = np.zeros((int(nt // nt_skip), npf, Nt_max+1, 3))
-    traj_dir   = np.zeros((int(nt // nt_skip), npf, Nt_max, 3))
-    traj_theta = np.zeros((int(nt // nt_skip), npf, Nt_max))
-    traj_U     = np.zeros((int(nt // nt_skip), npf, Nt_max, 3))
-    traj_V     = np.zeros((int(nt // nt_skip), npf, Nt_max, 3))
-    traj_mref  = np.zeros((int(nt // nt_skip), npf, Nt_max))
-    ut_1       = np.zeros((npf, Nt_max, 3))
-    vt_1       = np.zeros((npf, Nt_max, 3))
-    tang_1     = np.zeros((npf, Nt_max, 3))
+    traj_v       = np.zeros((int(nt // nt_skip), npf, Nt_max+1, 3))
+    traj_dir     = np.zeros((int(nt // nt_skip), npf, Nt_max, 3))
+    traj_theta   = np.zeros((int(nt // nt_skip), npf, Nt_max))
+    traj_U       = np.zeros((int(nt // nt_skip), npf, Nt_max, 3))
+    traj_V       = np.zeros((int(nt // nt_skip), npf, Nt_max, 3))
+    traj_mref    = np.zeros((int(nt // nt_skip), npf, Nt_max))
+    ut_1         = np.zeros((npf, Nt_max, 3))
+    vt_1         = np.zeros((npf, Nt_max, 3))
+    tang_1       = np.zeros((npf, Nt_max, 3))
 
     ################################
     # Main time cycle
@@ -212,21 +215,22 @@ def run_bd_mt(nt, nt_skip, Nt_array, Nt_frozen, kbt, flag_restart, v_restart, th
         ################################
         for p in range(npf):
             ed[p] = computeEdges(Nt_array[p], Nt_max, v[p])
-            tang[p] = computeTangents(Nt_array[p], Nt_max, ed[p])
+            ed_norms[p] = computeEdgeNorms(Nt_array[p], Nt_max, ed[p])
+            tang[p] = computeTangents(Nt_array[p], Nt_max, ed[p], ed_norms[p])
 
             if ts != 0:
                 # parallel transport in time
                 for i in range(Nt_array[p]):
                     ut[p, i] = parallel_transport(ut_1[p, i], tang_1[p, i], tang[p, i])
                     vt[p, i] = parallel_transport(vt_1[p, i], tang_1[p, i], tang[p, i])
-                
+
                 # update reference twist
                 for i in range(1, Nt_array[p]):
                     uu = parallel_transport(ut[p, i-1], tang[p, i-1], tang[p, i])
                     mref[p, i] = get_angle(uu, ut[p, i], tang[p, i])
 
             M1[p], M2[p] = computeMaterialFrame(Nt_array[p], Nt_max, ut[p], vt[p], theta[p])
-            lv[p] = computeVoronoiLen(Nt_array[p], Nt_max, ed[p])
+            lv[p] = computeVoronoiLen(Nt_array[p], Nt_max, ed_norms[p])
             kb[p] = computeCurvatureBinormals(Nt_array[p], Nt_max, tang[p])
             Mtwist[p] = computeTwist(Nt_array[p], Nt_max, theta[p], mref[p])
 
@@ -240,11 +244,11 @@ def run_bd_mt(nt, nt_skip, Nt_array, Nt_frozen, kbt, flag_restart, v_restart, th
             flat = np.zeros((npf, Nt_max+1, 3))
 
         for p in range(npf):
-            fs = Fstretch(Nt_array[p], Nt_max, ed[p], tang[p], ht, Es, epsilon_long_bond, a_long_bond, mode_long_bond, alpha_long_bond)
-            ft = Ftwist(Nt_array[p], Nt_max, ed[p], Mtwist[p], kb[p], lv[p], Mtwist_eq, Et)
+            fs = Fstretch(Nt_array[p], Nt_max, ed_norms[p], tang[p], ht, Es, epsilon_long_bond, a_long_bond, mode_long_bond, alpha_long_bond)
+            ft = Ftwist(Nt_array[p], Nt_max, ed_norms[p], Mtwist[p], kb[p], lv[p], Mtwist_eq, Et)
             ft_theta = Ftwist_theta(Nt_array[p], Nt_max, Mtwist[p], lv[p], Mtwist_eq, Et)
-            fb = Fbend(Nt_array[p], Nt_max, M1[p], M2[p], kb[p], tang[p], ed[p], lv[p], K1eq, K2eq, Ek1, Ek2)
-            ftb2 = FcoupleM_k2(Nt_array[p], Nt_max, Mtwist[p], kb[p], lv[p], tang[p], ed[p], M1[p], Mtwist_eq, K2eq, Etb2)
+            fb = Fbend(Nt_array[p], Nt_max, M1[p], M2[p], kb[p], tang[p], ed_norms[p], lv[p], K1eq, K2eq, Ek1, Ek2)
+            ftb2 = FcoupleM_k2(Nt_array[p], Nt_max, Mtwist[p], kb[p], lv[p], tang[p], ed_norms[p], M1[p], Mtwist_eq, K2eq, Etb2)
             ftb2_theta = FcoupleM_k2_theta(Nt_array[p], Nt_max, M1[p], lv[p], kb[p], K2eq, Etb2)
 
             ################################

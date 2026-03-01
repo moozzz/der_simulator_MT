@@ -38,10 +38,17 @@ def computeEdges(Nt, Nt_max, v):
     return ed
 
 @njit(fastmath=True)
-def computeTangents(Nt, Nt_max, ed):
-    tang = np.zeros((Nt_max, 3))
+def computeEdgeNorms(Nt, Nt_max, ed):
+    ed_norms = np.zeros(Nt_max)
 
-    ed_norms = np.array([norm(x) for x in ed])
+    for i in range(Nt):
+        ed_norms[i] = norm(ed[i])
+
+    return ed_norms
+
+@njit(fastmath=True)
+def computeTangents(Nt, Nt_max, ed, ed_norms):
+    tang = np.zeros((Nt_max, 3))
 
     for i in range(Nt):
         tang[i] = ed[i] / ed_norms[i]
@@ -78,10 +85,8 @@ def computeMaterialFrame(Nt, Nt_max, U, V, theta):
     return M1, M2
 
 @njit(fastmath=True)
-def computeVoronoiLen(Nt, Nt_max, ed):
+def computeVoronoiLen(Nt, Nt_max, ed_norms):
     lv = np.zeros(Nt_max+1)
-
-    ed_norms = np.array([norm(x) for x in ed])
 
     lv[0]  = 0.5 * ed_norms[0]
     lv[Nt] = 0.5 * ed_norms[Nt-1]
@@ -124,10 +129,8 @@ def computeK(Nt, Nt_max, M, kb, sign):
 ###########################################################
 
 @njit(fastmath=True)
-def computedMde(Nt, Nt_max, ed, kb, sameIndex):
+def computedMde(Nt, Nt_max, ed_norms, kb, sameIndex):
     dMde = np.zeros((Nt_max+1, 3))
-
-    ed_norms = np.array([norm(x) for x in ed])
 
     for i in range(1, Nt):
         if sameIndex:
@@ -147,13 +150,10 @@ def computedUdM(Nt, Nt_max, Mtwist, lv, Mtwist_eq):
     return dUdM
 
 @njit(fastmath=True)
-def computedKde(Nt, Nt_max, M, kb, tang, ed, sameIndex, sign):
+def computedKde(Nt, Nt_max, M, K, kb, tang, ed_norms, sameIndex, sign):
     Ttilda = np.zeros((Nt_max+1, 3))
     Mtilda = np.zeros((Nt_max+1, 3))
     dKde = np.zeros((Nt_max+1, 3))
-    K = computeK(Nt, Nt_max, M, kb, sign)
-
-    ed_norms = np.array([norm(x) for x in ed])
 
     for i in range(1, Nt):
         Ttilda[i] = (tang[i-1] + tang[i]) / (1.0 + np.dot(tang[i-1], tang[i]))
@@ -167,9 +167,8 @@ def computedKde(Nt, Nt_max, M, kb, tang, ed, sameIndex, sign):
     return dKde
 
 @njit(fastmath=True)
-def computedUdK(Nt, Nt_max, M, lv, kb, Keq, sign):
+def computedUdK(Nt, Nt_max, K, lv, Keq):
     dUdK = np.zeros(Nt_max+1)
-    K = computeK(Nt, Nt_max, M, kb, sign)
 
     for i in range(1, Nt):
         dUdK[i] = 1.0 / lv[i] * (K[i] - Keq[i])

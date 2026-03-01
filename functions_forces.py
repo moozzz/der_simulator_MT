@@ -19,11 +19,9 @@ from functions_pf import computedUdK
 ###############################################
 
 @njit(fastmath=True)
-def Fstretch(Nt, Nt_max, ed, tang, ht, Es, epsilon_long_bond, a_long_bond, mode_long_bond, alpha_long_bond):
+def Fstretch(Nt, Nt_max, ed_norms, tang, ht, Es, epsilon_long_bond, a_long_bond, mode_long_bond, alpha_long_bond):
     Fs = np.zeros((Nt_max+1, 3))
     dUsde = np.zeros((Nt_max, 3))
-
-    ed_norms = np.array([norm(x) for x in ed])
 
     # pre-computing dUsde for all edges
     for i in range(Nt):
@@ -44,15 +42,13 @@ def Fstretch(Nt, Nt_max, ed, tang, ht, Es, epsilon_long_bond, a_long_bond, mode_
     return Fs
 
 @njit(fastmath=True)
-def Ftwist(Nt, Nt_max, ed, Mtwist, kb, lv, Mtwist_eq, Et):
+def Ftwist(Nt, Nt_max, ed_norms, Mtwist, kb, lv, Mtwist_eq, Et):
     Ft = np.zeros((Nt_max+1, 3))
     dUtde = np.zeros((Nt_max, 3))
 
     dUdM = computedUdM(Nt, Nt_max, Mtwist, lv, Mtwist_eq)
-    dMde_same = computedMde(Nt, Nt_max, ed, kb, True)
-    dMde_diff = computedMde(Nt, Nt_max, ed, kb, False)
-
-    ed_norms = np.array([norm(x) for x in ed])
+    dMde_same = computedMde(Nt, Nt_max, ed_norms, kb, True)
+    dMde_diff = computedMde(Nt, Nt_max, ed_norms, kb, False)
 
     # pre-computing dUtde for all edges
     for i in range(Nt):
@@ -81,16 +77,18 @@ def Ftwist_theta(Nt, Nt_max, Mtwist, lv, Mtwist_eq, Et):
     return Mt
 
 @njit(fastmath=True)
-def Fbend(Nt, Nt_max, M1, M2, kb, tang, ed, lv, K1eq, K2eq, Ek1, Ek2):
+def Fbend(Nt, Nt_max, M1, M2, kb, tang, ed_norms, lv, K1eq, K2eq, Ek1, Ek2):
     Fb = np.zeros((Nt_max+1, 3))
     dUbde = np.zeros((Nt_max, 3))
 
-    dUdK1 = computedUdK(Nt, Nt_max, M2, lv, kb, K1eq,  1.0)
-    dUdK2 = computedUdK(Nt, Nt_max, M1, lv, kb, K2eq, -1.0)
-    dK1de_same = computedKde(Nt, Nt_max, M2, kb, tang, ed, True,  1.0)
-    dK2de_same = computedKde(Nt, Nt_max, M1, kb, tang, ed, True, -1.0)
-    dK1de_diff = computedKde(Nt, Nt_max, M2, kb, tang, ed, False,  1.0)
-    dK2de_diff = computedKde(Nt, Nt_max, M1, kb, tang, ed, False, -1.0)
+    K1 = computeK(Nt, Nt_max, M2, kb,  1.0)
+    K2 = computeK(Nt, Nt_max, M1, kb, -1.0)
+    dUdK1 = computedUdK(Nt, Nt_max, K1, lv, K1eq)
+    dUdK2 = computedUdK(Nt, Nt_max, K2, lv, K2eq)
+    dK1de_same = computedKde(Nt, Nt_max, M2, K1, kb, tang, ed_norms, True,   1.0)
+    dK2de_same = computedKde(Nt, Nt_max, M1, K2, kb, tang, ed_norms, True,  -1.0)
+    dK1de_diff = computedKde(Nt, Nt_max, M2, K1, kb, tang, ed_norms, False,  1.0)
+    dK2de_diff = computedKde(Nt, Nt_max, M1, K2, kb, tang, ed_norms, False, -1.0)
 
     # pre-computing dUbde for all edges
     for i in range(Nt):
@@ -106,19 +104,18 @@ def Fbend(Nt, Nt_max, M1, M2, kb, tang, ed, lv, K1eq, K2eq, Ek1, Ek2):
     return Fb
 
 @njit(fastmath=True)
-def FcoupleM_k2(Nt, Nt_max, Mtwist, kb, lv, tang, ed, M1, Mtwist_eq, K2eq, Etb2):
+def FcoupleM_k2(Nt, Nt_max, Mtwist, kb, lv, tang, ed_norms, M1, Mtwist_eq, K2eq, Etb2):
     Ftb2 = np.zeros((Nt_max+1, 3))
     dUtb2de = np.zeros((Nt_max, 3))
 
+    K2 = computeK(Nt, Nt_max, M1, kb, -1.0)
     dUdM = computedUdM(Nt, Nt_max, Mtwist, lv, Mtwist_eq)
-    dMde_same = computedMde(Nt, Nt_max, ed, kb, True)
-    dMde_diff = computedMde(Nt, Nt_max, ed, kb, False)
+    dMde_same = computedMde(Nt, Nt_max, ed_norms, kb, True)
+    dMde_diff = computedMde(Nt, Nt_max, ed_norms, kb, False)
 
-    dUdK2 = computedUdK(Nt, Nt_max, M1, lv, kb, K2eq, -1.0)
-    dK2de_same = computedKde(Nt, Nt_max, M1, kb, tang, ed, True, -1.0)
-    dK2de_diff = computedKde(Nt, Nt_max, M1, kb, tang, ed, False, -1.0)
-
-    ed_norms = np.array([norm(x) for x in ed])
+    dUdK2 = computedUdK(Nt, Nt_max, K2, lv, K2eq)
+    dK2de_same = computedKde(Nt, Nt_max, M1, K2, kb, tang, ed_norms, True,  -1.0)
+    dK2de_diff = computedKde(Nt, Nt_max, M1, K2, kb, tang, ed_norms, False, -1.0)
 
     # pre-computing dUtb2de for all edges
     for i in range(Nt):
@@ -136,7 +133,8 @@ def FcoupleM_k2(Nt, Nt_max, Mtwist, kb, lv, tang, ed, M1, Mtwist_eq, K2eq, Etb2)
 @njit(fastmath=True)
 def FcoupleM_k2_theta(Nt, Nt_max, M1, lv, kb, K2eq, Etb2):
     Mtb2 = np.zeros(Nt_max)
-    dUdK2 = computedUdK(Nt, Nt_max, M1, lv, kb, K2eq, -1.0)
+    K2 = computeK(Nt, Nt_max, M1, kb, -1.0)
+    dUdK2 = computedUdK(Nt, Nt_max, K2, lv, K2eq)
 
     # computing Mt for all edges
     Mtb2[0] = Etb2[1] * dUdK2[1]
