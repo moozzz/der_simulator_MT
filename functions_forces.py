@@ -3,7 +3,6 @@
 ###############################################
 
 import numpy as np
-from numpy.linalg import norm as norm
 from numba import njit
 
 from functions_pf import computeK
@@ -98,7 +97,7 @@ def rep_flat(v, v1, R0_COM_COM):
     sig_rep = 4.4578 # nm
 
     r = v1 - v
-    r_norm = norm(r)
+    r_norm = np.sqrt(r[0]*r[0] + r[1]*r[1] + r[2]*r[2])
     r_unit = r / r_norm
 
     if r_norm < R0_COM_COM:
@@ -156,7 +155,7 @@ def Flat(Nt_array, M1, M2, v, tang, epsilon_lat_bond_homo, epsilon_lat_bond_seam
             r2 = v[(p+1) % npf, i] + rr2
 
             r = r1 - r2
-            r_norm = norm(r)
+            r_norm = np.sqrt(r[0]*r[0] + r[1]*r[1] + r[2]*r[2])
             r_unit = r / r_norm
 
             fattr = attr_flat(alpha_lat_bond * epsilon_lat_bond / 3.0, r_norm, r_unit, a_lat_bond, R0_BS)

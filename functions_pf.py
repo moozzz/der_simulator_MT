@@ -3,7 +3,6 @@
 ###############################################
 
 import numpy as np
-from numpy.linalg import norm as norm
 from numba import njit
 
 
@@ -19,7 +18,7 @@ def get_angle(vec1, vec2, vn):
 @njit(fastmath=True)
 def parallel_transport(u, t1, t2):
     b = np.cross(t1, t2)
-    b_norm = norm(b)
+    b_norm = np.sqrt(b[0]*b[0] + b[1]*b[1] + b[2]*b[2])
 
     if b_norm == 0.0:
         return u
@@ -43,7 +42,7 @@ def computeEdgeNorms(Nt, Nt_max, ed):
     ed_norms = np.zeros(Nt_max)
 
     for i in range(Nt):
-        ed_norms[i] = norm(ed[i])
+        ed_norms[i] = np.sqrt(ed[i, 0]*ed[i, 0] + ed[i, 1]*ed[i, 1] + ed[i, 2]*ed[i, 2])
 
     return ed_norms
 
@@ -65,7 +64,7 @@ def computeBishopFrame(Nt, Nt_max, t0, u0, tang):
     for i in range(Nt):
         t1 = tang[i]
         u = parallel_transport(u, t0, t1)
-        u = u / norm(u)
+        u = u / np.sqrt(u[0]*u[0] + u[1]*u[1] + u[2]*u[2])
         v = np.cross(t1, u)
         U[i] = u
         V[i] = v
