@@ -101,7 +101,11 @@ def rep_flat(v, v1, R0_COM_COM):
     r_unit = r / r_norm
 
     if r_norm < R0_COM_COM:
-        rfl = 12.0 * epsilon_rep * ( sig_rep**12.0 / r_norm**13.0 ) * r_unit
+        r_norm2  = r_norm * r_norm
+        r_norm4  = r_norm2 * r_norm2
+        r_norm8  = r_norm4 * r_norm4
+        r_norm13 = r_norm8 * r_norm4 * r_norm
+        rfl = 12.0 * epsilon_rep * sig_rep**12.0 / r_norm13 * r_unit
     else:
         rfl = np.zeros(3)
 
